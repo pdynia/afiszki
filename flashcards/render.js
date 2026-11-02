@@ -107,7 +107,8 @@ export function renderCard({ note, model, card, deckName, getBlob }) {
 
 const BASE_CSS = `
 :host { display:block; }
-.card { padding: 20px; font-family: arial, sans-serif; font-size: 20px; text-align: center; color: inherit; background: transparent; word-wrap: break-word; }
+.card { padding: 20px; min-height: 100%; font-family: arial, sans-serif; font-size: 20px; text-align: center; color: black; background: white; word-wrap: break-word; }
+.card.nightMode { color: #e6e9ee; background: #171b21; }
 .card img { max-width: 100%; height: auto; }
 .cloze { font-weight: bold; color: #1f6feb; }
 hr#answer { margin: 16px 0; border: 0; border-top: 1px solid rgba(128,128,128,.4); }

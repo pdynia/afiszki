@@ -232,7 +232,7 @@ async function nextCard() {
   }
   await Promise.all([...names].map(getBlobCached));
   study.rendered = renderCard({ note, model, card, deckName: currentDeck.name, getBlob: (n) => mediaCache.get(n) || null });
-  mount($('card-host'), study.rendered.front, study.rendered.css, { nightMode: isDark() });
+  mount($('card-host'), study.rendered.front, study.rendered.css, { nightMode: isDark() && /night_?mode/i.test(study.rendered.css) });
   $('grade').classList.add('hidden');
   $('btn-show').classList.remove('hidden');
 }
@@ -245,7 +245,7 @@ function updateStudyCounts() {
 
 function showAnswer() {
   if (!study?.card || !$('grade').classList.contains('hidden')) return;
-  mount($('card-host'), study.rendered.back, study.rendered.css, { nightMode: isDark() });
+  mount($('card-host'), study.rendered.back, study.rendered.css, { nightMode: isDark() && /night_?mode/i.test(study.rendered.css) });
   const iv = sched.previewIntervals(study.card, settings);
   for (const g of [1, 2, 3, 4]) $(`iv-${g}`).textContent = iv[g];
   $('btn-show').classList.add('hidden');
