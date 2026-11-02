@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1f6feb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Cards">
+  <title>Cards – spaced repetition</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <button id="btn-back" class="icon-btn hidden" aria-label="Back">‹</button>
+    <h1 id="title">Decks</h1>
+    <div class="spacer"></div>
+    <button id="btn-settings" class="icon-btn" aria-label="Settings">⚙</button>
+  </header>
+
+  <main id="main">
+    <!-- Deck list -->
+    <section id="view-decks" class="view">
+      <div id="deck-list" class="deck-list"></div>
+      <div id="empty-state" class="empty hidden">
+        <p>No decks yet.</p>
+        <p class="muted">Import an Anki <code>.apkg</code> file or restore a backup to get started.</p>
+      </div>
+      <div class="actions">
+        <label class="btn primary">
+          Import .apkg
+          <input id="file-apkg" type="file" accept=".apkg,.zip,application/zip,application/octet-stream" hidden>
+        </label>
+        <label class="btn">
+          Restore backup
+          <input id="file-backup" type="file" accept=".json,application/json" hidden>
+        </label>
+        <button id="btn-export" class="btn">Backup all</button>
+      </div>
+      <p id="import-status" class="status hidden"></p>
+    </section>
+
+    <!-- Deck overview -->
+    <section id="view-deck" class="view hidden">
+      <div class="deck-overview">
+        <h2 id="deck-name"></h2>
+        <div class="counts">
+          <div><span class="n new" id="c-new">0</span><small>New</small></div>
+          <div><span class="n learn" id="c-learn">0</span><small>Learning</small></div>
+          <div><span class="n due" id="c-due">0</span><small>Due</small></div>
+        </div>
+        <p class="muted" id="deck-total"></p>
+        <button id="btn-study" class="btn primary big">Study now</button>
+        <div class="row">
+          <button id="btn-deck-export" class="btn">Export deck (.apkg)</button>
+          <button id="btn-deck-delete" class="btn danger">Delete deck</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Study -->
+    <section id="view-study" class="view hidden">
+      <div class="study-head">
+        <span class="pill new" id="s-new">0</span>
+        <span class="pill learn" id="s-learn">0</span>
+        <span class="pill due" id="s-due">0</span>
+      </div>
+      <div id="card-host" class="card-host"></div>
+      <div class="study-controls">
+        <button id="btn-show" class="btn primary big">Show answer</button>
+        <div id="grade" class="grade hidden">
+          <button data-grade="1" class="btn again"><span>Again</span><small id="iv-1"></small></button>
+          <button data-grade="2" class="btn hard"><span>Hard</span><small id="iv-2"></small></button>
+          <button data-grade="3" class="btn good"><span>Good</span><small id="iv-3"></small></button>
+          <button data-grade="4" class="btn easy"><span>Easy</span><small id="iv-4"></small></button>
+        </div>
+      </div>
+      <div id="study-done" class="empty hidden">
+        <p>🎉 Done for now.</p>
+        <p class="muted" id="study-done-msg"></p>
+        <button id="btn-done-back" class="btn">Back to decks</button>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section id="view-settings" class="view hidden">
+      <h2>Settings</h2>
+      <label class="field">
+        <span>New cards per day (per deck)</span>
+        <input id="set-new-per-day" type="number" min="0" max="9999">
+      </label>
+      <label class="field">
+        <span>Maximum reviews per day (per deck)</span>
+        <input id="set-rev-per-day" type="number" min="0" max="99999">
+      </label>
+      <label class="field">
+        <span>Learning steps (minutes, comma separated)</span>
+        <input id="set-steps" type="text" placeholder="1, 10">
+      </label>
+      <label class="field">
+        <span>Theme</span>
+        <select id="set-theme">
+          <option value="auto">System</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
+      <button id="btn-settings-save" class="btn primary">Save</button>
+      <hr>
+      <h3>Storage</h3>
+      <p class="muted" id="storage-info">…</p>
+      <button id="btn-persist" class="btn">Request persistent storage</button>
+      <hr>
+      <h3>Danger zone</h3>
+      <button id="btn-wipe" class="btn danger">Delete all data</button>
+      <p class="muted small">Version <span id="app-version"></span></p>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="vendor/jszip.min.js"></script>
+  <script src="vendor/sql-wasm.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
