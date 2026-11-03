@@ -14,11 +14,11 @@ works in any desktop browser.
 
 ## Cloud sync (optional)
 
-Sync uses a Firebase project (Auth + Firestore + Storage). To enable it:
+Sync uses a Firebase project (Auth + Firestore; the free Spark plan is enough — media is stored in Firestore as base64 chunks, so Storage/Blaze is not needed). To enable it:
 
 1. Firebase console → create a project → **Add app → Web**, copy the `firebaseConfig` into `flashcards/firebase-config.js`.
 2. **Authentication → Sign-in method**: enable *Email link* (and optionally *Google*). Under **Settings → Authorized domains** add `pdynia.github.io`.
-3. **Firestore** and **Storage**: create them, then paste `firebase/firestore.rules` and `firebase/storage.rules` as the rules.
+3. **Firestore**: create it, then paste `firebase/firestore.rules` as the rules.
 
 With an empty `apiKey` the sync section is hidden and the app is offline-only.
 

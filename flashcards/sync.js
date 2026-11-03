@@ -1,11 +1,14 @@
-// Optional cloud sync through Firebase (Auth + Firestore + Storage).
+// Optional cloud sync through Firebase (Auth + Firestore). Media files are stored
+// inside Firestore as base64 chunks so the free (Spark) plan is enough; Storage is not used.
 // Local IndexedDB stays the source of truth; this pushes the dirty queue and
 // pulls remote changes newer than the last pull. Last write (by `mod`) wins.
 import * as db from './db.js';
 import { FIREBASE_CONFIG } from './firebase-config.js';
 
 const COLLECTIONS = ['decks', 'models', 'notes', 'cards', 'reviews', 'media'];
-let app = null, auth = null, fs = null, storage = null;
+let app = null, auth = null, fs = null;
+const CHUNK = 700 * 1024;          // base64 chars per chunk doc (Firestore limit is 1 MiB per doc)
+const MAX_MEDIA = 6 * 1024 * 1024; // skip files bigger than this
 let running = false;
 const listeners = new Set();
 export const state = { enabled: false, user: null, status: 'off', lastSync: 0, error: null, pending: 0 };
@@ -21,7 +24,6 @@ export function init() {
   app = firebase.initializeApp(FIREBASE_CONFIG);
   auth = firebase.auth();
   fs = firebase.firestore();
-  storage = firebase.storage();
   state.enabled = true;
   auth.onAuthStateChanged(async (user) => {
     state.user = user ? { uid: user.uid, email: user.email } : null;
@@ -56,7 +58,30 @@ export async function signInGoogle() {
 export async function signOut() { await auth.signOut(); }
 
 const col = (name) => fs.collection('users').doc(state.user.uid).collection(name);
-const mediaRef = (name) => storage.ref(`users/${state.user.uid}/media/${name}`);
+const mediaDoc = (name) => col('media').doc(encodeURIComponent(name));
+const chunkDoc = (name, i) => col('mediaChunks').doc(`${encodeURIComponent(name)}__${i}`);
+const blobToBase64 = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1] || ''); r.onerror = rej; r.readAsDataURL(blob); });
+function base64ToBlob(b64, type) {
+  const bin = atob(b64); const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type });
+}
+async function uploadMedia(name, blob) {
+  if (blob.size > MAX_MEDIA) { console.warn('media too large to sync', name); return; }
+  const b64 = await blobToBase64(blob);
+  const n = Math.ceil(b64.length / CHUNK) || 1;
+  for (let i = 0; i < n; i++) await chunkDoc(name, i).set({ name, i, data: b64.slice(i * CHUNK, (i + 1) * CHUNK) });
+  await mediaDoc(name).set({ name, size: blob.size, type: blob.type || '', chunks: n, mod: Date.now() });
+}
+async function downloadMedia(meta) {
+  let b64 = '';
+  for (let i = 0; i < (meta.chunks || 1); i++) {
+    const snap = await chunkDoc(meta.name, i).get();
+    if (!snap.exists) throw new Error('missing chunk');
+    b64 += snap.data().data;
+  }
+  return base64ToBlob(b64, meta.type || 'application/octet-stream');
+}
 
 // Firestore rejects undefined values and nested arrays; cards/notes are plain JSON.
 function clean(obj) {
@@ -91,13 +116,10 @@ async function push() {
   const done = [];
   // Media blobs first, so notes that reference them never point at nothing.
   for (const d of dirty.filter(x => x.store === 'media')) {
-    if (d.deleted) { await mediaRef(d.key).delete().catch(() => {}); await col('media').doc(encodeURIComponent(d.key)).set({ name: d.key, deleted: true, mod: Date.now() }); }
+    if (d.deleted) await mediaDoc(d.key).set({ name: d.key, deleted: true, mod: Date.now() });
     else {
       const row = await db.get('media', d.key);
-      if (row) {
-        await mediaRef(d.key).put(row.blob, { contentType: row.blob.type || 'application/octet-stream' });
-        await col('media').doc(encodeURIComponent(d.key)).set({ name: d.key, size: row.blob.size, type: row.blob.type || '', mod: Date.now() });
-      }
+      if (row) await uploadMedia(d.key, row.blob);
     }
     done.push(d);
   }
@@ -142,11 +164,8 @@ async function pull() {
           const localRow = await db.get('media', r.name);
           if (r.deleted) { if (localRow) await db.del('media', r.name); continue; }
           if (!localRow) {
-            try {
-              const url = await mediaRef(r.name).getDownloadURL();
-              const blob = await (await fetch(url)).blob();
-              await db.put('media', { name: r.name, blob });
-            } catch (e) { console.warn('media download failed', r.name, e); }
+            try { await db.put('media', { name: r.name, blob: await downloadMedia(r) }); }
+            catch (e) { console.warn('media download failed', r.name, e); }
           }
           continue;
         }
@@ -169,8 +188,9 @@ async function pull() {
 export async function fetchMedia(name) {
   if (!state.user) return null;
   try {
-    const url = await mediaRef(name).getDownloadURL();
-    const blob = await (await fetch(url)).blob();
+    const snap = await mediaDoc(name).get();
+    if (!snap.exists || snap.data().deleted) return null;
+    const blob = await downloadMedia(snap.data());
     await db.put('media', { name, blob });
     return blob;
   } catch { return null; }
