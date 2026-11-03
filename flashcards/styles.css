@@ -312,6 +312,12 @@ main { flex: 1; width: 100%; max-width: 520px; margin: 0 auto; padding: 8px 16px
 .hard-row span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hard-row b { color: var(--again); white-space: nowrap; }
 
+.icon-btn.sync-busy svg { animation: spin 1s linear infinite; }
+.icon-btn.sync-error { color: var(--again); }
+.icon-btn.sync-pending::after { content: ''; position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); top: 8px; right: 8px; }
+.icon-btn { position: relative; }
+@keyframes spin { to { transform: rotate(360deg); } }
+#sync-group p { padding: 6px 16px; }
 /* ---------- rich text editor ---------- */
 .toolbar { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 .toolbar button, .toolbar select, .toolbar .colorbtn { font: inherit; font-size: 13px; font-weight: 700; min-width: 34px; height: 32px; padding: 0 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-2); color: var(--fg); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }

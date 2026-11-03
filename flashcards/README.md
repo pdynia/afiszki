@@ -12,6 +12,16 @@ works in any desktop browser.
 - Export a deck back to `.apkg`, or back up / restore everything as a zip
 - Built-in user guide (the ? button) and a Polish translation, chosen automatically from the device language
 
+## Cloud sync (optional)
+
+Sync uses a Firebase project (Auth + Firestore + Storage). To enable it:
+
+1. Firebase console → create a project → **Add app → Web**, copy the `firebaseConfig` into `flashcards/firebase-config.js`.
+2. **Authentication → Sign-in method**: enable *Email link* (and optionally *Google*). Under **Settings → Authorized domains** add `pdynia.github.io`.
+3. **Firestore** and **Storage**: create them, then paste `firebase/firestore.rules` and `firebase/storage.rules` as the rules.
+
+With an empty `apiKey` the sync section is hidden and the app is offline-only.
+
 ## Running it
 
 It is a static site: `flashcards/` is deployed to GitHub Pages by

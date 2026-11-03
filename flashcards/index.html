@@ -34,6 +34,7 @@
     <symbol id="i-audio" viewBox="0 0 24 24"><path d="M4 10v4h3l4 4V6L7 10H4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15 9a4 4 0 0 1 0 6M17.5 6.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
     <symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4h10l-1.5 3.5L16 11H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
     <symbol id="i-stats" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-sync" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-14.2 5M4 12a8 8 0 0 1 14.2-5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M18 3v4h-4M6 21v-4h4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5v.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></symbol>
   </svg>
 
@@ -44,6 +45,7 @@
     <button id="btn-undo" class="icon-btn hidden" aria-label="Undo last answer" disabled><svg><use href="#i-undo"/></svg></button>
     <button id="btn-edit-card" class="icon-btn hidden" aria-label="Edit card" data-i18n-label="btn.edit"><svg><use href="#i-edit"/></svg></button>
     <button id="btn-study-more" class="icon-btn hidden" aria-label="More"><svg><use href="#i-more"/></svg></button>
+    <button id="btn-sync" class="icon-btn hidden" aria-label="Sync" title=""><svg><use href="#i-sync"/></svg></button>
     <button id="btn-help" class="icon-btn" aria-label="Help" data-i18n-label="app.help"><svg><use href="#i-help"/></svg></button>
     <button id="btn-more" class="icon-btn hidden" aria-label="More"><svg><use href="#i-more"/></svg></button>
     <button id="btn-settings" class="icon-btn" aria-label="Settings" data-i18n-label="app.settings"><svg><use href="#i-gear"/></svg></button>
@@ -203,6 +205,22 @@
       </div>
       <button id="btn-settings-save" class="btn primary big" data-i18n="btn.save">Save</button>
 
+      <div class="group" id="sync-group">
+        <div class="group-title" data-i18n="sync.title">Sync between devices</div>
+        <div id="sync-signed-out">
+          <p class="muted small" data-i18n="sync.intro"></p>
+          <div class="field col"><span data-i18n="sync.email">Your e-mail</span><input id="sync-email" type="email" autocomplete="email" placeholder="ala@example.com"></div>
+          <button id="btn-sync-link" class="btn row-btn" data-i18n="sync.send_link">Send me a sign-in link</button>
+          <button id="btn-sync-google" class="btn row-btn" data-i18n="sync.google">Sign in with Google</button>
+        </div>
+        <div id="sync-signed-in" class="hidden">
+          <p class="small" id="sync-who"></p>
+          <p class="muted small" id="sync-info"></p>
+          <button id="btn-sync-now" class="btn row-btn" data-i18n="sync.now">Sync now</button>
+          <button id="btn-sync-out" class="btn row-btn" data-i18n="sync.signout">Sign out</button>
+        </div>
+        <p class="status err small hidden" id="sync-error"></p>
+      </div>
       <div class="group">
         <div class="group-title" data-i18n="set.data">Data</div>
         <button id="btn-export" class="btn row-btn" data-i18n="btn.backup">Back up everything (.zip)</button>
@@ -397,6 +415,10 @@
   <div id="toast" class="toast hidden" role="status"></div>
 
   <script src="vendor/jszip.min.js"></script>
+  <script src="vendor/firebase-app-compat.js"></script>
+  <script src="vendor/firebase-auth-compat.js"></script>
+  <script src="vendor/firebase-firestore-compat.js"></script>
+  <script src="vendor/firebase-storage-compat.js"></script>
   <script src="vendor/sql-wasm.js"></script>
   <script type="module" src="app.js"></script>
 </body>

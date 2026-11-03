@@ -1,9 +1,10 @@
 // Offline cache for the app shell. Bump CACHE when files change.
-const CACHE = 'cards-v0.7.0';
+const CACHE = 'cards-v0.8.0';
 const ASSETS = [
-  './', './index.html', './styles.css', './app.js', './db.js', './apkg.js', './scheduler.js', './fsrs.js', './render.js', './i18n.js', './help.js',
+  './', './index.html', './styles.css', './app.js', './db.js', './apkg.js', './scheduler.js', './fsrs.js', './render.js', './sync.js', './firebase-config.js', './i18n.js', './help.js',
   './manifest.webmanifest', './icon.svg',
   './vendor/jszip.min.js', './vendor/sql-wasm.js', './vendor/sql-wasm.wasm',
+  './vendor/firebase-app-compat.js', './vendor/firebase-auth-compat.js', './vendor/firebase-firestore-compat.js', './vendor/firebase-storage-compat.js',
 ];
 
 self.addEventListener('install', (e) => {
