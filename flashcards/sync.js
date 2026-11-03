@@ -138,7 +138,7 @@ async function push() {
     const batch = fs.batch();
     const chunk = rest.slice(i, i + 400);
     for (const d of chunk) {
-      const ref = col(d.store).doc(String(d.key));
+      const ref = col(d.store).doc(encodeURIComponent(String(d.key))); // ids may contain '/' (Anki guids, deck names)
       if (d.deleted) batch.set(ref, { id: d.key, deleted: true, mod: Date.now() });
       else {
         const row = await db.get(d.store, d.key);
