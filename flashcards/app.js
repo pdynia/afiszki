@@ -7,7 +7,7 @@ import { HELP } from './help.js';
 import { clozeNumbers } from './render.js';
 import * as syncer from './sync.js';
 
-export const VERSION = '0.8.1';
+export const VERSION = '0.8.2';
 const $ = (id) => document.getElementById(id);
 const DAY = 86400000;
 
@@ -1041,14 +1041,16 @@ $('set-lang').onchange = () => { settings.lang = $('set-lang').value; applyLang(
 function renderSyncUI() {
   const st = syncer.state;
   const group = $('sync-group');
-  group.classList.toggle('hidden', !st.enabled);
+  group.classList.toggle('hidden', st.reason === 'no-config');
+  $('sync-unavailable').classList.toggle('hidden', st.enabled);
+  if (!st.enabled) $('sync-unavailable').textContent = t('sync.unavailable', { why: st.reason === 'sdk-missing' ? t('sync.sdk_missing') : st.reason });
+  $('sync-signed-out').classList.toggle('hidden', !st.enabled || !!st.user);
+  $('sync-signed-in').classList.toggle('hidden', !st.enabled || !st.user);
   const btn = $('btn-sync');
   btn.className = 'icon-btn' + (st.status === 'syncing' ? ' sync-busy' : st.status === 'error' ? ' sync-error' : st.pending ? ' sync-pending' : '');
   btn.classList.toggle('hidden', !st.enabled || !st.user);
   btn.title = t('sync.status_' + (st.status === 'signed-out' ? 'off' : st.status)) + (st.error ? `: ${st.error}` : '');
   if (!st.enabled) return;
-  $('sync-signed-out').classList.toggle('hidden', !!st.user);
-  $('sync-signed-in').classList.toggle('hidden', !st.user);
   if (st.user) {
     $('sync-who').textContent = t('sync.signed_in_as', { email: st.user.email || st.user.uid });
     const last = st.lastSync ? new Date(st.lastSync).toLocaleString(document.documentElement.lang) : t('sync.never');
