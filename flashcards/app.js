@@ -5,8 +5,9 @@ import { renderCard, mount, releaseMediaUrls } from './render.js';
 import { t, setLang, detectLang, lang as currentLang } from './i18n.js';
 import { HELP } from './help.js';
 import { clozeNumbers } from './render.js';
+import * as syncer from './sync.js';
 
-export const VERSION = '0.7.0';
+export const VERSION = '0.8.0';
 const $ = (id) => document.getElementById(id);
 const DAY = 86400000;
 
@@ -288,6 +289,7 @@ async function importFile(file) {
     const res = await importApkg(file, (msg) => { status.textContent = msg; }, t);
     const names = res.decks.map(d => `${d.name} (${t('import.cards', { n: d.cards })})`).join(', ');
     await showDecks();
+    syncer.sync().catch(() => {});
     status.className = 'status ok';
     status.textContent = t('import.done', { names }) + (res.warnings.length ? ` — ${res.warnings.join(' ')}` : '');
   } catch (err) {
@@ -356,7 +358,11 @@ $('sheet-restore').onclick = () => { closeSheet(); $('file-backup').click(); };
 let study = null;
 const mediaCache = new Map();
 async function getBlobCached(name) {
-  if (!mediaCache.has(name)) mediaCache.set(name, (await db.get('media', name))?.blob || null);
+  if (!mediaCache.has(name)) {
+    let blob = (await db.get('media', name))?.blob || null;
+    if (!blob && syncer.state.user) blob = await syncer.fetchMedia(name);
+    mediaCache.set(name, blob);
+  }
   return mediaCache.get(name);
 }
 
@@ -550,7 +556,7 @@ async function grade(g) {
   const before = study.card;
   const after = sched.answer(before, g, settings);
   await db.put('cards', after);
-  const reviewId = await db.put('reviews', { cardId: after.id, deckId: after.deckId, grade: g, at: after.lastReview, ivl: after.ivl, ease: after.ease, state: before.state, ms: Math.min(120000, Date.now() - (study.shownAt || Date.now())) });
+  const reviewId = await db.put('reviews', { id: newGuid(), cardId: after.id, deckId: after.deckId, grade: g, at: after.lastReview, ivl: after.ivl, ease: after.ease, state: before.state, ms: Math.min(120000, Date.now() - (study.shownAt || Date.now())) });
   let dailyField = null;
   if (before.state === 'new') dailyField = 'new'; else if (before.state === 'review') dailyField = 'rev';
   if (dailyField) await bumpDaily(after.deckId, dailyField);
@@ -601,6 +607,7 @@ function finishStudy() {
   $('sum-acc').textContent = study.answered ? `${Math.round(100 * (study.answered - study.again) / study.answered)}%` : '–';
   $('sum-time').textContent = sched.fmtDelta(Math.max(60000, Date.now() - study.startedAt));
   releaseMediaUrls();
+  syncer.sync().catch(() => {});
 }
 $('btn-done-back').onclick = showDecks;
 
@@ -892,6 +899,7 @@ async function saveEditor(addAnother) {
   for (const c of existing) if (!wanted.includes(c.ord)) await db.del('cards', c.id);
 
   toast(t('toast.card_saved'));
+  syncer.sync().catch(() => {});
   if (addAnother) {
     editor.noteId = null; editor.modelId = null; editor.extraFields = null; editor.images = { 1: [], 2: [] }; editor.audios = { 1: [], 2: [] };
     setField(1, ''); setField(2, '');
@@ -1001,6 +1009,7 @@ async function openSettings() {
   $('set-autoplay').value = settings.autoplay === false ? '0' : '1';
   $('set-timelimit').value = Number(settings.timeLimit) || 0;
   $('settings-footer').textContent = t('set.footer', { v: VERSION });
+  renderSyncUI();
   const info = $('storage-info');
   if (navigator.storage?.estimate) {
     const { usage = 0, quota = 0 } = await navigator.storage.estimate();
@@ -1028,6 +1037,37 @@ $('btn-settings-save').onclick = async () => {
 };
 $('set-algo').onchange = () => $('row-retention').classList.toggle('hidden', $('set-algo').value !== 'fsrs');
 $('set-lang').onchange = () => { settings.lang = $('set-lang').value; applyLang(); $('settings-footer').textContent = t('set.footer', { v: VERSION }); $('title').textContent = t('app.settings'); };
+// ---- sync UI
+function renderSyncUI() {
+  const st = syncer.state;
+  const group = $('sync-group');
+  group.classList.toggle('hidden', !st.enabled);
+  const btn = $('btn-sync');
+  btn.classList.toggle('hidden', !st.enabled || !st.user);
+  btn.className = 'icon-btn' + (st.status === 'syncing' ? ' sync-busy' : st.status === 'error' ? ' sync-error' : st.pending ? ' sync-pending' : '');
+  btn.title = t('sync.status_' + (st.status === 'signed-out' ? 'off' : st.status)) + (st.error ? `: ${st.error}` : '');
+  if (!st.enabled) return;
+  $('sync-signed-out').classList.toggle('hidden', !!st.user);
+  $('sync-signed-in').classList.toggle('hidden', !st.user);
+  if (st.user) {
+    $('sync-who').textContent = t('sync.signed_in_as', { email: st.user.email || st.user.uid });
+    const last = st.lastSync ? new Date(st.lastSync).toLocaleString(document.documentElement.lang) : t('sync.never');
+    $('sync-info').textContent = (navigator.onLine ? t('sync.last', { t: last }) : t('sync.offline')) + (st.pending ? ` · ${t('sync.pending', { n: st.pending })}` : '');
+  }
+  $('sync-error').classList.toggle('hidden', !st.error);
+  $('sync-error').textContent = st.error || '';
+}
+syncer.onChange(renderSyncUI);
+$('btn-sync').onclick = () => syncer.sync({ force: true });
+$('btn-sync-now').onclick = () => syncer.sync({ force: true });
+$('btn-sync-out').onclick = () => syncer.signOut();
+$('btn-sync-google').onclick = () => syncer.signInGoogle().catch(e => toast(e.message, 5000));
+$('btn-sync-link').onclick = async () => {
+  const email = $('sync-email').value.trim();
+  if (!email) return $('sync-email').focus();
+  try { await syncer.sendLink(email); toast(t('sync.link_sent'), 6000); } catch (e) { toast(e.message, 6000); }
+};
+
 $('btn-persist').onclick = async () => {
   const ok = navigator.storage?.persist ? await navigator.storage.persist() : false;
   toast(t(ok ? 'toast.persist_ok' : 'toast.persist_no'));
@@ -1144,6 +1184,9 @@ $('btn-notetypes').onclick = openNoteTypes;
 // ---------------------------------------------------------------- boot
 (async () => {
   await loadSettings();
+  syncer.state.lastSync = await db.getMeta('sync:lastSync', 0);
+  try { syncer.init(); } catch (e) { console.warn('sync init failed', e); }
+  renderSyncUI();
   await showDecks();
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW registration failed', err));

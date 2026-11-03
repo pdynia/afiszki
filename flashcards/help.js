@@ -129,6 +129,11 @@ export const HELP = {
 </section>
 
 <section>
+  <h2>Sync between iPad and computer</h2>
+  <p>Settings → <strong>Sync between devices</strong>. Type your e-mail and tap <em>Send me a sign-in link</em>; open the link from the e-mail <em>on the same device</em>. Do the same on the computer with the same e-mail. From then on decks, cards, photos, recordings and progress are kept the same everywhere; changes made offline are sent when you're back online. The ↻ icon at the top shows the state (spinning = syncing, orange dot = changes waiting, red = error — tap it to retry).</p>
+</section>
+
+<section>
   <h2>Problems?</h2>
   <ul>
     <li><em>"This deck uses the newest Anki package format"</em> — export again from Anki with <strong>Support older Anki versions</strong> ticked (step 2).</li>
@@ -264,6 +269,11 @@ export const HELP = {
     <li><strong>Sekund na kartę</strong>: opcjonalny licznik, który odkrywa odpowiedź po upływie czasu.</li>
     <li><strong>Typy notatek</strong> (Ustawienia): edycja szablonów HTML/CSS typu karty, jak w Anki.</li>
   </ul>
+</section>
+
+<section>
+  <h2>Synchronizacja iPad ↔ komputer</h2>
+  <p>Ustawienia → <strong>Synchronizacja między urządzeniami</strong>. Wpisz swój e‑mail i stuknij <em>Wyślij mi link do logowania</em>; otwórz link z maila <em>na tym samym urządzeniu</em>. To samo zrób na komputerze z tym samym e‑mailem. Od tej pory talie, karty, zdjęcia, nagrania i postępy są wszędzie takie same; zmiany zrobione offline wysyłają się po powrocie sieci. Ikona ↻ u góry pokazuje stan (kręci się = synchronizuje, pomarańczowa kropka = zmiany czekają, czerwona = błąd — stuknij, by ponowić).</p>
 </section>
 
 <section>
