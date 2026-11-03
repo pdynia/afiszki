@@ -336,7 +336,7 @@ async function showCard(card) {
   study.rendered = renderCard({ note, model, card, deckName: currentDeck.name, getBlob: (n) => mediaCache.get(n) || null });
   const host = $('card-host');
   host.classList.remove('answer');
-  mount(host, study.rendered.front, study.rendered.css, { nightMode: isDark() && /night_?mode/i.test(study.rendered.css) });
+  mount(host, study.rendered.front, study.rendered.css, { nightMode: isDark() });
   $('card-hint').textContent = t('study.tap');
   $('grade').classList.add('hidden');
   $('btn-show').classList.remove('hidden');
@@ -362,7 +362,7 @@ function showAnswer() {
   if (!study?.card || !$('grade').classList.contains('hidden')) return;
   const host = $('card-host');
   host.classList.add('answer');
-  mount(host, study.rendered.back, study.rendered.css, { nightMode: isDark() && /night_?mode/i.test(study.rendered.css) });
+  mount(host, study.rendered.back, study.rendered.css, { nightMode: isDark() });
   const iv = sched.previewIntervals(study.card, settings);
   for (const g of [1, 2, 3, 4]) $(`iv-${g}`).textContent = iv[g];
   $('card-hint').textContent = t('study.how_well');
