@@ -1,7 +1,7 @@
 // Offline cache for the app shell. Bump CACHE when files change.
-const CACHE = 'cards-v0.2.0';
+const CACHE = 'cards-v0.3.0';
 const ASSETS = [
-  './', './index.html', './styles.css', './app.js', './db.js', './apkg.js', './scheduler.js', './render.js',
+  './', './index.html', './styles.css', './app.js', './db.js', './apkg.js', './scheduler.js', './render.js', './i18n.js', './help.js',
   './manifest.webmanifest', './icon.svg',
   './vendor/jszip.min.js', './vendor/sql-wasm.js', './vendor/sql-wasm.wasm',
 ];

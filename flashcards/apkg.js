@@ -19,15 +19,15 @@ const stripHtml = (s) => s.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim(
 /**
  * Import an .apkg File/Blob. Returns { decks: [{id,name,cards}], warnings: [] }.
  */
-export async function importApkg(file, onProgress = () => {}) {
+export async function importApkg(file, onProgress = () => {}, t = (k) => k) {
   onProgress('Unpacking…');
   const zip = await JSZip.loadAsync(file);
   const dbEntry = zip.file('collection.anki21') || zip.file('collection.anki2');
   if (!dbEntry) {
     if (zip.file('collection.anki21b')) {
-      throw new Error('This deck uses the newest Anki package format. In Anki, export it again with "Support older Anki versions" checked, then import that file.');
+      throw new Error(t('err.new_format'));
     }
-    throw new Error('Not an Anki package: no collection database found.');
+    throw new Error(t('err.not_apkg'));
   }
   const warnings = [];
 
@@ -118,7 +118,7 @@ export async function importApkg(file, onProgress = () => {}) {
     const mediaEntry = zip.file('media');
     if (mediaEntry) {
       let map = null;
-      try { map = JSON.parse(await mediaEntry.async('string')); } catch { warnings.push('Media index is in a newer format and was skipped.'); }
+      try { map = JSON.parse(await mediaEntry.async('string')); } catch { warnings.push(t('warn.media')); }
       if (map) {
         const entries = Object.entries(map);
         let i = 0;

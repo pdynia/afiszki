@@ -2,35 +2,44 @@ import * as db from './db.js';
 import { importApkg, exportDeck } from './apkg.js';
 import * as sched from './scheduler.js';
 import { renderCard, mount, releaseMediaUrls } from './render.js';
+import { t, setLang, detectLang, lang as currentLang } from './i18n.js';
+import { HELP } from './help.js';
 
-export const VERSION = '0.2.0';
+export const VERSION = '0.3.0';
 const $ = (id) => document.getElementById(id);
 const DAY = 86400000;
 
 // ---------------------------------------------------------------- settings
-let settings = { ...sched.DEFAULTS, theme: 'auto' };
+let settings = { ...sched.DEFAULTS, theme: 'auto', lang: 'auto' };
 async function loadSettings() {
   settings = { ...settings, ...(await db.getMeta('settings', {})) };
   applyTheme();
+  applyLang();
 }
 function applyTheme() {
   const root = document.documentElement;
   if (settings.theme === 'auto') root.removeAttribute('data-theme'); else root.dataset.theme = settings.theme;
+}
+function applyLang() {
+  setLang(settings.lang === 'auto' ? detectLang() : settings.lang);
 }
 function isDark() {
   return settings.theme === 'dark' || (settings.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
 }
 
 // ---------------------------------------------------------------- navigation
-const views = ['decks', 'deck', 'study', 'settings'];
+const views = ['decks', 'deck', 'study', 'settings', 'help'];
 let current = 'decks';
+let previous = 'decks';
 let currentDeck = null;
 function show(view, title) {
+  previous = current;
   current = view;
   for (const v of views) $(`view-${v}`).classList.toggle('hidden', v !== view);
   $('title').textContent = title;
   $('btn-back').classList.toggle('hidden', view === 'decks');
   $('btn-settings').classList.toggle('hidden', view !== 'decks');
+  $('btn-help').classList.toggle('hidden', view !== 'decks');
   $('btn-more').classList.toggle('hidden', view !== 'decks');
   $('btn-undo').classList.toggle('hidden', view !== 'study');
   $('study-progress').classList.toggle('hidden', view !== 'study');
@@ -38,16 +47,25 @@ function show(view, title) {
 }
 $('btn-back').onclick = () => {
   if (current === 'study') { releaseMediaUrls(); return openDeck(currentDeck.id); }
+  if (current === 'help' && previous === 'settings') return openSettings();
   return showDecks();
 };
 $('btn-settings').onclick = openSettings;
+$('btn-help').onclick = openHelp;
+$('btn-empty-help').onclick = openHelp;
+$('btn-settings-help').onclick = openHelp;
+
+function openHelp() {
+  show('help', t('app.help'));
+  $('help-body').innerHTML = HELP[document.documentElement.lang] || HELP.en;
+}
 
 let toastTimer;
 function toast(msg, ms = 2500) {
-  const t = $('toast');
-  t.textContent = msg; t.classList.remove('hidden');
+  const el = $('toast');
+  el.textContent = msg; el.classList.remove('hidden');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.add('hidden'), ms);
+  toastTimer = setTimeout(() => el.classList.add('hidden'), ms);
 }
 
 // ---------------------------------------------------------------- daily limits & stats
@@ -74,7 +92,6 @@ async function deckCounts(deckId, cards) {
   };
 }
 
-// Reviews grouped by study day for the last n days (oldest first).
 function reviewsPerDay(reviews, days = 7) {
   const today = sched.dayStart();
   const buckets = Array.from({ length: days }, (_, i) => ({ day: today - (days - 1 - i) * DAY, count: 0 }));
@@ -87,14 +104,14 @@ function reviewsPerDay(reviews, days = 7) {
 function streak(reviews) {
   const days = new Set(reviews.map(r => sched.dayStart(r.at)));
   let d = sched.dayStart(), n = 0;
-  if (!days.has(d)) d -= DAY; // today not studied yet still counts yesterday's streak
+  if (!days.has(d)) d -= DAY;
   while (days.has(d)) { n++; d -= DAY; }
   return n;
 }
 
 // ---------------------------------------------------------------- deck list
 async function showDecks() {
-  show('decks', 'Decks');
+  show('decks', t('app.decks'));
   const decks = (await db.getAll('decks')).sort((a, b) => a.name.localeCompare(b.name));
   const list = $('deck-list');
   list.innerHTML = '';
@@ -112,22 +129,22 @@ async function showDecks() {
       <span class="name"></span>
       <svg class="chev"><use href="#i-chev"/></svg>
       <span class="meta">
-        <span class="tag new ${counts.new ? '' : 'zero'}"><i></i>${counts.new} new</span>
-        <span class="tag learn ${counts.learn ? '' : 'zero'}"><i></i>${counts.learn} learning</span>
-        <span class="tag due ${counts.due ? '' : 'zero'}"><i></i>${counts.due} due</span>
-        <span>${counts.total} cards · ${pct}% learned</span>
+        <span class="tag new ${counts.new ? '' : 'zero'}"><i></i>${t('deck.tag_new', { n: counts.new })}</span>
+        <span class="tag learn ${counts.learn ? '' : 'zero'}"><i></i>${t('deck.tag_learn', { n: counts.learn })}</span>
+        <span class="tag due ${counts.due ? '' : 'zero'}"><i></i>${t('deck.tag_due', { n: counts.due })}</span>
+        <span>${t('deck.meta', { n: counts.total, pct })}</span>
       </span>
       <span class="bar"><i style="width:${pct}%"></i></span>`;
     b.querySelector('.name').textContent = d.name;
     b.onclick = () => openDeck(d.id);
     list.appendChild(b);
   }
-  $('deck-summary').textContent = decks.length ? `${decks.length} deck${decks.length > 1 ? 's' : ''} · ${totalCards} cards` : '';
+  $('deck-summary').textContent = decks.length ? t('decks.summary', { n: decks.length, cards: totalCards }) : '';
   if (decks.length) {
     const reviews = await db.getAll('reviews');
     const today = sched.dayStart();
     $('hero-due').textContent = totalDue;
-    $('hero-sub').textContent = totalDue ? 'cards waiting across all decks' : 'all caught up';
+    $('hero-sub').textContent = totalDue ? t('hero.waiting') : t('hero.caught_up');
     $('hero-done').textContent = reviews.filter(r => r.at >= today).length;
     $('hero-streak').textContent = streak(reviews);
   }
@@ -136,41 +153,42 @@ async function showDecks() {
 async function openDeck(id) {
   currentDeck = await db.get('decks', id);
   if (!currentDeck) return showDecks();
-  show('deck', 'Deck');
+  show('deck', t('app.deck'));
   $('deck-name').textContent = currentDeck.name;
   const counts = await deckCounts(id);
   $('c-new').textContent = counts.new;
   $('c-learn').textContent = counts.learn;
   $('c-due').textContent = counts.due;
-  $('deck-total').textContent = `${counts.total} cards · ${counts.learned} learned`;
+  $('deck-total').textContent = t('deck.total', { n: counts.total, learned: counts.learned });
   const pct = counts.total ? counts.learned / counts.total : 0;
   $('ring-pct').textContent = `${Math.round(pct * 100)}%`;
   requestAnimationFrame(() => { $('ring-fg').style.strokeDashoffset = String(326.7 * (1 - pct)); });
   const reviews = await db.getAllByIndex('reviews', 'deckId', id);
   const buckets = reviewsPerDay(reviews);
   const max = Math.max(1, ...buckets.map(b => b.count));
+  const locale = document.documentElement.lang;
   $('hist').innerHTML = buckets.map(b =>
-    `<div><i class="${b.count ? '' : 'zero'}" style="height:${Math.max(4, Math.round(52 * b.count / max))}px" title="${b.count}"></i><span>${new Date(b.day).toLocaleDateString(undefined, { weekday: 'narrow' })}</span></div>`).join('');
+    `<div><i class="${b.count ? '' : 'zero'}" style="height:${Math.max(4, Math.round(52 * b.count / max))}px" title="${b.count}"></i><span>${new Date(b.day).toLocaleDateString(locale, { weekday: 'narrow' })}</span></div>`).join('');
   const week = buckets.reduce((s, b) => s + b.count, 0);
-  $('hist-total').textContent = `${week} review${week === 1 ? '' : 's'}`;
+  $('hist-total').textContent = t('deck.reviews', { n: week });
   const nothing = counts.new + counts.cards.learn.length + counts.due === 0 && counts.cards.learnLater.length === 0;
   $('btn-study').disabled = nothing;
-  $('btn-study').textContent = nothing ? 'Nothing due right now' : `Study now · ${counts.new + counts.learn + counts.due}`;
+  $('btn-study').textContent = nothing ? t('btn.nothing_due') : t('btn.study_n', { n: counts.new + counts.learn + counts.due });
 }
 
 $('btn-study').onclick = () => startStudy(currentDeck.id);
 $('btn-deck-delete').onclick = async () => {
-  if (!confirm(`Delete "${currentDeck.name}" and all its progress?`)) return;
+  if (!confirm(t('confirm.delete_deck', { name: currentDeck.name }))) return;
   await db.deleteDeckData(currentDeck.id);
-  toast('Deck deleted');
+  toast(t('toast.deleted'));
   showDecks();
 };
 $('btn-deck-export').onclick = async () => {
-  toast('Exporting…');
+  toast(t('toast.exporting'));
   try {
     const blob = await exportDeck(currentDeck.id);
     download(blob, `${currentDeck.name.replace(/[^\w.-]+/g, '_')}.apkg`);
-  } catch (e) { console.error(e); toast(`Export failed: ${e.message}`, 5000); }
+  } catch (e) { console.error(e); toast(t('toast.export_failed', { e: e.message }), 5000); }
 };
 
 function download(blob, name) {
@@ -186,23 +204,22 @@ function download(blob, name) {
 async function importFile(file) {
   const status = $('import-status');
   status.className = 'status';
-  status.textContent = 'Reading file…';
+  status.textContent = t('import.reading');
   if (current !== 'decks') showDecks();
   try {
-    const res = await importApkg(file, (msg) => { status.textContent = msg; });
-    const names = res.decks.map(d => `${d.name} (${d.cards} cards)`).join(', ');
+    const res = await importApkg(file, (msg) => { status.textContent = msg; }, t);
+    const names = res.decks.map(d => `${d.name} (${t('import.cards', { n: d.cards })})`).join(', ');
     await showDecks();
     status.className = 'status ok';
-    status.textContent = `Imported ${names}` + (res.warnings.length ? ` — ${res.warnings.join(' ')}` : '');
+    status.textContent = t('import.done', { names }) + (res.warnings.length ? ` — ${res.warnings.join(' ')}` : '');
   } catch (err) {
     console.error(err);
     status.className = 'status err';
-    status.textContent = `Import failed: ${err.message}`;
+    status.textContent = t('import.failed', { e: err.message });
   }
 }
 $('file-apkg').onchange = (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) importFile(f); };
 
-// Drag & drop on desktop
 let dragDepth = 0;
 document.addEventListener('dragenter', (e) => { e.preventDefault(); if (++dragDepth === 1) $('drop-overlay').classList.remove('hidden'); });
 document.addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; $('drop-overlay').classList.add('hidden'); } });
@@ -215,7 +232,7 @@ document.addEventListener('drop', (e) => {
 });
 
 async function backupAll() {
-  toast('Preparing backup…');
+  toast(t('toast.backup'));
   const zip = new JSZip();
   const data = {};
   for (const s of ['decks', 'models', 'notes', 'cards', 'reviews', 'meta']) data[s] = await db.getAll(s);
@@ -226,11 +243,11 @@ async function backupAll() {
   download(blob, `cards-backup-${new Date().toISOString().slice(0, 10)}.zip`);
 }
 async function restoreBackup(file) {
-  if (!confirm('Restore this backup? Existing data with the same ids will be overwritten.')) return;
+  if (!confirm(t('confirm.restore'))) return;
   try {
     const zip = await JSZip.loadAsync(file);
     const entry = zip.file('data.json');
-    if (!entry) throw new Error('not a Cards backup');
+    if (!entry) throw new Error(t('import.not_backup'));
     const data = JSON.parse(await entry.async('string'));
     for (const s of ['decks', 'models', 'notes', 'cards', 'reviews', 'meta']) await db.putMany(s, data[s] || []);
     const media = [];
@@ -241,15 +258,14 @@ async function restoreBackup(file) {
     }
     await db.putMany('media', media);
     await loadSettings();
-    toast('Backup restored');
+    toast(t('toast.restored'));
     showDecks();
-  } catch (err) { console.error(err); toast(`Restore failed: ${err.message}`, 5000); }
+  } catch (err) { console.error(err); toast(t('toast.restore_failed', { e: err.message }), 5000); }
 }
 $('file-backup').onchange = (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) restoreBackup(f); };
 $('btn-export').onclick = backupAll;
 $('btn-restore').onclick = () => $('file-backup').click();
 
-// "More" sheet on the deck list
 const sheet = $('sheet');
 const closeSheet = () => sheet.classList.add('hidden');
 $('btn-more').onclick = () => sheet.classList.remove('hidden');
@@ -278,7 +294,7 @@ async function startStudy(deckId) {
     models: new Map((await db.getAll('models')).map(m => [m.id, m])),
     startedAt: Date.now(),
     answered: 0, again: 0,
-    history: [], // for undo: { before, after, reviewId, dailyField }
+    history: [],
   };
   study.planned = study.learn.length + study.due.length + study.newCards.length;
   show('study', currentDeck.name);
@@ -295,7 +311,6 @@ function pickNext() {
   if (study.learn.length && study.learn[0].due <= now) return study.learn.shift();
   if (study.due.length) return study.due.shift();
   if (study.newCards.length) return study.newCards.shift();
-  // Learn-ahead: show a learning card up to 20 minutes early rather than nothing (as Anki does).
   if (study.learn.length && study.learn[0].due <= now + 20 * 60000) return study.learn.shift();
   return null;
 }
@@ -304,7 +319,7 @@ async function showCard(card) {
   study.card = card;
   const note = await db.get('notes', card.noteId);
   const model = note && study.models.get(note.modelId);
-  if (!note || !model) { toast('Skipping card with missing note'); return nextCard(); }
+  if (!note || !model) { toast(t('toast.missing_note')); return nextCard(); }
   const names = new Set();
   for (const f of note.fields) {
     for (const m of f.matchAll(/src="([^"]+)"/g)) names.add(decodeURIComponent(m[1]));
@@ -315,7 +330,7 @@ async function showCard(card) {
   const host = $('card-host');
   host.classList.remove('answer');
   mount(host, study.rendered.front, study.rendered.css, { nightMode: isDark() && /night_?mode/i.test(study.rendered.css) });
-  $('card-hint').textContent = 'Tap the card to show the answer';
+  $('card-hint').textContent = t('study.tap');
   $('grade').classList.add('hidden');
   $('btn-show').classList.remove('hidden');
 }
@@ -343,7 +358,7 @@ function showAnswer() {
   mount(host, study.rendered.back, study.rendered.css, { nightMode: isDark() && /night_?mode/i.test(study.rendered.css) });
   const iv = sched.previewIntervals(study.card, settings);
   for (const g of [1, 2, 3, 4]) $(`iv-${g}`).textContent = iv[g];
-  $('card-hint').textContent = 'How well did you know it?';
+  $('card-hint').textContent = t('study.how_well');
   $('btn-show').classList.add('hidden');
   $('grade').classList.remove('hidden');
 }
@@ -374,7 +389,6 @@ async function undo() {
   await db.put('cards', h.before);
   await db.del('reviews', h.reviewId);
   if (h.dailyField) await bumpDaily(h.before.deckId, h.dailyField, -1);
-  // Remove the re-queued learning copy and put the current card back where it came from.
   study.learn = study.learn.filter(c => c.id !== h.after.id);
   if (study.card) {
     const cur = study.card;
@@ -400,8 +414,8 @@ function finishStudy() {
   $('study-progress-bar').style.width = '100%';
   const pending = study?.learn?.length || 0;
   $('study-done-msg').textContent = pending
-    ? `${pending} learning card${pending > 1 ? 's' : ''} will be due again in ${sched.fmtDelta(study.learn[0].due - Date.now())}.`
-    : 'No more cards are due in this deck right now.';
+    ? t('done.pending', { n: pending, t: sched.fmtDelta(study.learn[0].due - Date.now()) })
+    : t('done.none');
   $('sum-count').textContent = study.answered;
   $('sum-acc').textContent = study.answered ? `${Math.round(100 * (study.answered - study.again) / study.answered)}%` : '–';
   $('sum-time').textContent = sched.fmtDelta(Math.max(60000, Date.now() - study.startedAt));
@@ -420,18 +434,19 @@ document.addEventListener('keydown', (e) => {
 
 // ---------------------------------------------------------------- settings view
 async function openSettings() {
-  show('settings', 'Settings');
+  show('settings', t('app.settings'));
   $('set-new-per-day').value = settings.newPerDay;
   $('set-rev-per-day').value = settings.revPerDay;
   $('set-steps').value = settings.learnSteps.join(', ');
   $('set-theme').value = settings.theme;
-  $('app-version').textContent = VERSION;
+  $('set-lang').value = settings.lang;
+  $('settings-footer').textContent = t('set.footer', { v: VERSION });
   const info = $('storage-info');
   if (navigator.storage?.estimate) {
     const { usage = 0, quota = 0 } = await navigator.storage.estimate();
     const persisted = navigator.storage.persisted ? await navigator.storage.persisted() : false;
-    info.textContent = `Using ${(usage / 1048576).toFixed(1)} MB of ${(quota / 1048576).toFixed(0)} MB available. Persistent storage ${persisted ? 'granted' : 'not granted'} — granting it stops the browser from evicting your decks when space is low.`;
-  } else info.textContent = 'Storage information unavailable.';
+    info.textContent = t('set.storage', { used: (usage / 1048576).toFixed(1), quota: (quota / 1048576).toFixed(0), state: t(persisted ? 'set.granted' : 'set.not_granted') });
+  } else info.textContent = t('set.storage_na');
 }
 $('btn-settings-save').onclick = async () => {
   settings.newPerDay = Math.max(0, Number($('set-new-per-day').value) || 0);
@@ -439,22 +454,26 @@ $('btn-settings-save').onclick = async () => {
   const steps = $('set-steps').value.split(/[,\s]+/).map(Number).filter(n => n > 0);
   settings.learnSteps = steps.length ? steps : [1, 10];
   settings.theme = $('set-theme').value;
+  settings.lang = $('set-lang').value;
   await db.setMeta('settings', settings);
   applyTheme();
-  toast('Settings saved');
+  applyLang();
+  toast(t('toast.saved'));
   showDecks();
 };
+$('set-lang').onchange = () => { settings.lang = $('set-lang').value; applyLang(); $('settings-footer').textContent = t('set.footer', { v: VERSION }); $('title').textContent = t('app.settings'); };
 $('btn-persist').onclick = async () => {
   const ok = navigator.storage?.persist ? await navigator.storage.persist() : false;
-  toast(ok ? 'Persistent storage granted' : 'Not granted by the browser');
+  toast(t(ok ? 'toast.persist_ok' : 'toast.persist_no'));
   openSettings();
 };
 $('btn-wipe').onclick = async () => {
-  if (!confirm('Delete ALL decks, progress and media on this device?')) return;
+  if (!confirm(t('confirm.wipe'))) return;
   await db.wipe();
-  settings = { ...sched.DEFAULTS, theme: 'auto' };
+  settings = { ...sched.DEFAULTS, theme: 'auto', lang: 'auto' };
   applyTheme();
-  toast('All data deleted');
+  applyLang();
+  toast(t('toast.wiped'));
   showDecks();
 };
 

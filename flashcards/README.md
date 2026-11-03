@@ -10,6 +10,7 @@ works in any desktop browser.
 - All data stays on the device (IndexedDB); works offline after the first visit
 - "Add to Home Screen" on iOS for an app-like experience
 - Export a deck back to `.apkg`, or back up / restore everything as a zip
+- Built-in user guide (the ? button) and a Polish translation, chosen automatically from the device language
 
 ## Running it
 
@@ -36,5 +37,7 @@ AnkiWeb are generally fine.
 | `scheduler.js` | SM‑2 scheduler and queue classification |
 | `render.js` | Anki template rendering, media resolution, shadow-DOM mounting |
 | `db.js` | IndexedDB layer |
+| `i18n.js` | English / Polish strings |
+| `help.js` | In-app user guide (EN / PL) |
 | `sw.js` | Offline cache (bump `CACHE` when files change) |
 | `vendor/` | JSZip 3.10.1, sql.js 1.12.0 |
