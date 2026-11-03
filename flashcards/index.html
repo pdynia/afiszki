@@ -26,6 +26,10 @@
     <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9h10a6 6 0 0 1 0 12h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-cards" viewBox="0 0 24 24"><rect x="3" y="7" width="14" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 4h11a2 2 0 0 1 2 2v9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m13.5 8.5 3 3" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 11v6M14 11v6M6 7l1 12h10l1-12M9 7V4h6v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8.5" cy="10" r="1.6" fill="currentColor"/><path d="m4 18 5-5 3 3 3-3 5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
     <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5v.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></symbol>
   </svg>
 
@@ -34,6 +38,7 @@
     <h1 id="title">Decks</h1>
     <div class="spacer"></div>
     <button id="btn-undo" class="icon-btn hidden" aria-label="Undo last answer" disabled><svg><use href="#i-undo"/></svg></button>
+    <button id="btn-edit-card" class="icon-btn hidden" aria-label="Edit card" data-i18n-label="btn.edit"><svg><use href="#i-edit"/></svg></button>
     <button id="btn-help" class="icon-btn" aria-label="Help" data-i18n-label="app.help"><svg><use href="#i-help"/></svg></button>
     <button id="btn-more" class="icon-btn hidden" aria-label="More"><svg><use href="#i-more"/></svg></button>
     <button id="btn-settings" class="icon-btn" aria-label="Settings" data-i18n-label="app.settings"><svg><use href="#i-gear"/></svg></button>
@@ -67,6 +72,9 @@
         <button class="btn link" id="btn-empty-help" data-i18n="empty.help">How do I get a deck from Anki?</button>
       </div>
 
+      <div class="row">
+        <button id="btn-new-deck" class="btn" data-i18n="btn.new_deck">New deck</button>
+      </div>
       <label class="btn primary big fab" id="btn-import-label">
         <svg class="ico"><use href="#i-import"/></svg> <span data-i18n="btn.import">Import deck (.apkg)</span>
         <input id="file-apkg" type="file" accept=".apkg,.zip,application/zip,application/octet-stream" hidden>
@@ -102,6 +110,11 @@
 
       <button id="btn-study" class="btn primary big" data-i18n="btn.study">Study now</button>
       <div class="row">
+        <button id="btn-add-card" class="btn" data-i18n="btn.add_card">Add card</button>
+        <button id="btn-browse" class="btn" data-i18n="btn.browse">Browse cards</button>
+      </div>
+      <div class="row">
+        <button id="btn-deck-rename" class="btn" data-i18n="btn.rename_deck">Rename</button>
         <button id="btn-deck-export" class="btn" data-i18n="btn.export_deck">Export .apkg</button>
         <button id="btn-deck-delete" class="btn danger" data-i18n="btn.delete_deck">Delete deck</button>
       </div>
@@ -178,6 +191,43 @@
         <button id="btn-wipe" class="btn row-btn danger" data-i18n="btn.wipe">Delete all data on this device</button>
       </div>
       <p class="muted small center" id="settings-footer"></p>
+    </section>
+
+    <!-- Card editor -->
+    <section id="view-editor" class="view hidden">
+      <div class="group">
+        <div class="group-title" data-i18n="ed.type">Card type</div>
+        <div class="seg" id="ed-type">
+          <button data-type="basic" class="on" data-i18n="ed.basic">Basic</button>
+          <button data-type="reversed" data-i18n="ed.reversed">Basic + reversed</button>
+          <button data-type="cloze" data-i18n="ed.cloze">Cloze</button>
+        </div>
+      </div>
+      <div class="group" id="ed-fields">
+        <div class="field col"><label for="ed-f1" id="ed-l1" data-i18n="ed.front">Front</label><textarea id="ed-f1" rows="3"></textarea>
+          <div class="thumbs" id="ed-img1"></div>
+          <div class="row imgrow"><label class="btn small-btn"><svg class="ico"><use href="#i-image"/></svg> <span data-i18n="ed.add_image">Add photo</span><input type="file" accept="image/*" data-field="1" class="ed-img-input" hidden></label></div>
+        </div>
+        <div class="field col"><label for="ed-f2" id="ed-l2" data-i18n="ed.back">Back</label><textarea id="ed-f2" rows="3"></textarea>
+          <div class="thumbs" id="ed-img2"></div>
+          <div class="row imgrow"><label class="btn small-btn"><svg class="ico"><use href="#i-image"/></svg> <span data-i18n="ed.add_image">Add photo</span><input type="file" accept="image/*" data-field="2" class="ed-img-input" hidden></label></div>
+        </div>
+        <p class="muted small" id="ed-hint"></p>
+        <label class="field col"><span data-i18n="ed.tags">Tags (optional)</span><input id="ed-tags" type="text" placeholder="chemistry, chapter1"></label>
+      </div>
+      <button id="btn-ed-save" class="btn primary big" data-i18n="ed.save">Save</button>
+      <button id="btn-ed-save-add" class="btn big" data-i18n="ed.save_add">Save and add another</button>
+      <button id="btn-ed-delete" class="btn big danger hidden" data-i18n="ed.delete">Delete this card</button>
+    </section>
+
+    <!-- Card browser -->
+    <section id="view-browser" class="view hidden">
+      <input id="br-search" type="search" class="search" data-i18n-placeholder="br.search" placeholder="Search…">
+      <div class="panel">
+        <div class="section-head"><h2><svg class="sh-ico"><use href="#i-cards"/></svg><span id="br-count"></span></h2></div>
+        <div id="br-list" class="deck-list"></div>
+      </div>
+      <button id="btn-br-add" class="btn primary big"><svg class="ico"><use href="#i-plus"/></svg> <span data-i18n="btn.add_card">Add card</span></button>
     </section>
 
     <!-- Help -->

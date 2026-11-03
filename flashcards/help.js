@@ -54,7 +54,26 @@ export const HELP = {
 </section>
 
 <section>
-  <h2>5. Studying</h2>
+  <h2>5. Making your own decks and cards</h2>
+  <ol>
+    <li>On the deck list tap <strong>New deck</strong> and give it a name.</li>
+    <li>Open the deck and tap <strong>Add card</strong>.</li>
+    <li>Pick the card type:
+      <ul>
+        <li><strong>Basic</strong> — a question on the front, the answer on the back.</li>
+        <li><strong>Basic + reversed</strong> — the same, but you also get a second card asking the other way round (good for vocabulary).</li>
+        <li><strong>Cloze</strong> — a sentence with a hidden part: write <code>{{c1::word}}</code> around what should be hidden. <code>c1</code>, <code>c2</code>… each become a separate card.</li>
+      </ul>
+    </li>
+    <li>Type the text. <strong>Add photo</strong> under a field attaches a picture from your photos or straight from the camera — photos are shrunk automatically so they don't fill the iPad.</li>
+    <li><strong>Save</strong>, or <strong>Save and add another</strong> to keep going.</li>
+  </ol>
+  <p><strong>Browse cards</strong> on the deck page lists everything in the deck with a search box; tap a card to edit or delete it. During study, the pencil icon at the top edits the card you're looking at.</p>
+  <p class="note">Cards made here can be exported with <em>Export .apkg</em> and opened in Anki desktop like any other deck.</p>
+</section>
+
+<section>
+  <h2>6. Studying</h2>
   <ul>
     <li>Tap a deck, then <strong>Study now</strong>.</li>
     <li>Read the question, think of the answer, then <strong>tap the card</strong> (or <em>Show answer</em>).</li>
@@ -74,7 +93,7 @@ export const HELP = {
 </section>
 
 <section>
-  <h2>6. Settings</h2>
+  <h2>7. Settings</h2>
   <ul>
     <li><strong>New cards per day</strong> — how many unseen cards are introduced each day (20 is a good default; lower it if reviews pile up).</li>
     <li><strong>Maximum reviews per day</strong> — a safety cap on reviews.</li>
@@ -84,7 +103,7 @@ export const HELP = {
 </section>
 
 <section>
-  <h2>7. Backups and getting progress back into Anki</h2>
+  <h2>8. Backups and getting progress back into Anki</h2>
   <ul>
     <li><strong>Back up everything (.zip)</strong> (⋯ menu or Settings → Data) saves all decks, progress and media into one file. Keep it in iCloud Drive or send it to yourself now and then.</li>
     <li><strong>Restore from backup…</strong> loads such a file — also on another device, which is how you move to a new iPad or a computer.</li>
@@ -157,7 +176,26 @@ export const HELP = {
 </section>
 
 <section>
-  <h2>5. Nauka</h2>
+  <h2>5. Własne talie i karty</h2>
+  <ol>
+    <li>Na liście talii stuknij <strong>Nowa talia</strong> i nadaj jej nazwę.</li>
+    <li>Otwórz talię i stuknij <strong>Dodaj kartę</strong>.</li>
+    <li>Wybierz rodzaj karty:
+      <ul>
+        <li><strong>Zwykła</strong> — pytanie z przodu, odpowiedź z tyłu.</li>
+        <li><strong>Zwykła + odwrotna</strong> — to samo, ale dostajesz też drugą kartę pytającą w drugą stronę (dobre do słówek).</li>
+        <li><strong>Luka</strong> — zdanie z ukrytym fragmentem: otocz go zapisem <code>{{c1::słowo}}</code>. Każdy numer <code>c1</code>, <code>c2</code>… to osobna karta.</li>
+      </ul>
+    </li>
+    <li>Wpisz tekst. <strong>Dodaj zdjęcie</strong> pod polem dołącza obrazek ze zdjęć albo prosto z aparatu — zdjęcia są automatycznie zmniejszane, żeby nie zapełniały iPada.</li>
+    <li><strong>Zapisz</strong> albo <strong>Zapisz i dodaj następną</strong>, żeby dodawać dalej.</li>
+  </ol>
+  <p><strong>Przeglądaj karty</strong> na stronie talii pokazuje wszystkie karty z wyszukiwarką; stuknij kartę, żeby ją poprawić lub usunąć. W trakcie nauki ołówek u góry otwiera edycję aktualnej karty.</p>
+  <p class="note">Karty zrobione tutaj można wyeksportować przez <em>Eksportuj .apkg</em> i otworzyć w Anki na komputerze jak każdą inną talię.</p>
+</section>
+
+<section>
+  <h2>6. Nauka</h2>
   <ul>
     <li>Stuknij talię, a potem <strong>Ucz się</strong>.</li>
     <li>Przeczytaj pytanie, pomyśl o odpowiedzi i <strong>stuknij kartę</strong> (albo <em>Pokaż odpowiedź</em>).</li>
@@ -177,7 +215,7 @@ export const HELP = {
 </section>
 
 <section>
-  <h2>6. Ustawienia</h2>
+  <h2>7. Ustawienia</h2>
   <ul>
     <li><strong>Nowe karty dziennie</strong> — ile nowych kart pojawia się każdego dnia (20 to dobry start; zmniejsz, jeśli powtórek robi się za dużo).</li>
     <li><strong>Maks. powtórek dziennie</strong> — górny limit powtórek.</li>
@@ -187,7 +225,7 @@ export const HELP = {
 </section>
 
 <section>
-  <h2>7. Kopie zapasowe i powrót postępów do Anki</h2>
+  <h2>8. Kopie zapasowe i powrót postępów do Anki</h2>
   <ul>
     <li><strong>Kopia zapasowa wszystkiego (.zip)</strong> (menu ⋯ albo Ustawienia → Dane) zapisuje wszystkie talie, postępy i media w jednym pliku. Co jakiś czas odłóż go na iCloud Drive albo wyślij do siebie.</li>
     <li><strong>Przywróć z kopii…</strong> wczytuje taki plik — także na innym urządzeniu; tak przenosisz się na nowego iPada albo komputer.</li>
