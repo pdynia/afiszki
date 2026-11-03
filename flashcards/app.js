@@ -4,8 +4,9 @@ import * as sched from './scheduler.js';
 import { renderCard, mount, releaseMediaUrls } from './render.js';
 import { t, setLang, detectLang, lang as currentLang } from './i18n.js';
 import { HELP } from './help.js';
+import { clozeNumbers } from './render.js';
 
-export const VERSION = '0.3.0';
+export const VERSION = '0.4.0';
 const $ = (id) => document.getElementById(id);
 const DAY = 86400000;
 
@@ -28,7 +29,7 @@ function isDark() {
 }
 
 // ---------------------------------------------------------------- navigation
-const views = ['decks', 'deck', 'study', 'settings', 'help'];
+const views = ['decks', 'deck', 'study', 'settings', 'help', 'editor', 'browser'];
 let current = 'decks';
 let previous = 'decks';
 let currentDeck = null;
@@ -42,12 +43,15 @@ function show(view, title) {
   $('btn-help').classList.toggle('hidden', view !== 'decks');
   $('btn-more').classList.toggle('hidden', view !== 'decks');
   $('btn-undo').classList.toggle('hidden', view !== 'study');
+  $('btn-edit-card').classList.toggle('hidden', view !== 'study');
   $('study-progress').classList.toggle('hidden', view !== 'study');
   window.scrollTo(0, 0);
 }
 $('btn-back').onclick = () => {
   if (current === 'study') { releaseMediaUrls(); return openDeck(currentDeck.id); }
   if (current === 'help' && previous === 'settings') return openSettings();
+  if (current === 'editor') return editorReturn();
+  if (current === 'browser') return openDeck(currentDeck.id);
   return showDecks();
 };
 $('btn-settings').onclick = openSettings;
@@ -184,6 +188,34 @@ async function openDeck(id) {
 }
 
 $('btn-study').onclick = () => startStudy(currentDeck.id);
+$('btn-add-card').onclick = () => openEditor({ deckId: currentDeck.id, back: () => openDeck(currentDeck.id) });
+$('btn-browse').onclick = () => openBrowser();
+$('btn-br-add').onclick = () => openEditor({ deckId: currentDeck.id, back: () => openBrowser() });
+$('btn-new-deck').onclick = async () => {
+  const name = (prompt(t('prompt.deck_name')) || '').trim();
+  if (!name) return;
+  if (await db.get('decks', name)) return toast(t('toast.deck_exists'));
+  await db.put('decks', { id: name, name, created: Date.now(), mod: Date.now() });
+  await openDeck(name);
+};
+$('btn-deck-rename').onclick = async () => {
+  const name = (prompt(t('prompt.rename'), currentDeck.name) || '').trim();
+  if (!name || name === currentDeck.name) return;
+  if (await db.get('decks', name)) return toast(t('toast.deck_exists'));
+  // Deck id doubles as its name, so move every row to the new id.
+  const old = currentDeck.id;
+  const notes = await db.getAllByIndex('notes', 'deckId', old);
+  const cards = await db.getAllByIndex('cards', 'deckId', old);
+  const reviews = await db.getAllByIndex('reviews', 'deckId', old);
+  await db.putMany('notes', notes.map(n => ({ ...n, deckId: name })));
+  await db.putMany('cards', cards.map(c => ({ ...c, deckId: name })));
+  await db.putMany('reviews', reviews.map(r => ({ ...r, deckId: name })));
+  await db.put('decks', { ...currentDeck, id: name, name, mod: Date.now() });
+  await db.del('decks', old);
+  const daily = await getDaily(old);
+  await db.setMeta(dailyKey(name), daily);
+  await openDeck(name);
+};
 $('btn-deck-delete').onclick = async () => {
   if (!confirm(t('confirm.delete_deck', { name: currentDeck.name }))) return;
   await db.deleteDeckData(currentDeck.id);
@@ -438,6 +470,217 @@ document.addEventListener('keydown', (e) => {
   else if (/^[1-4]$/.test(e.key)) grade(Number(e.key));
   else if (e.key === 'z' || e.key === 'Backspace') { e.preventDefault(); undo(); }
 });
+
+// ---------------------------------------------------------------- card editor
+const BUILTIN_CSS = '.card { font-family: arial; font-size: 20px; text-align: center; color: black; background: white; }';
+const BUILTIN = {
+  basic: { id: '1607392319001', name: 'Basic', type: 0, css: BUILTIN_CSS,
+    flds: [{ name: 'Front', ord: 0 }, { name: 'Back', ord: 1 }],
+    tmpls: [{ name: 'Card 1', ord: 0, qfmt: '{{Front}}', afmt: '{{FrontSide}}<hr id=answer>{{Back}}' }] },
+  reversed: { id: '1607392319002', name: 'Basic (and reversed card)', type: 0, css: BUILTIN_CSS,
+    flds: [{ name: 'Front', ord: 0 }, { name: 'Back', ord: 1 }],
+    tmpls: [{ name: 'Card 1', ord: 0, qfmt: '{{Front}}', afmt: '{{FrontSide}}<hr id=answer>{{Back}}' },
+            { name: 'Card 2', ord: 1, qfmt: '{{Back}}', afmt: '{{FrontSide}}<hr id=answer>{{Front}}' }] },
+  cloze: { id: '1607392319003', name: 'Cloze', type: 1, css: BUILTIN_CSS + ' .cloze { font-weight: bold; color: #A35139; }',
+    flds: [{ name: 'Text', ord: 0 }, { name: 'Back Extra', ord: 1 }],
+    tmpls: [{ name: 'Cloze', ord: 0, qfmt: '{{cloze:Text}}', afmt: '{{cloze:Text}}<br>{{Back Extra}}' }] },
+};
+async function ensureModel(key) {
+  const m = BUILTIN[key];
+  if (!(await db.get('models', m.id))) await db.put('models', m);
+  return m;
+}
+function modelKind(model) {
+  if (model.type === 1) return 'cloze';
+  return model.tmpls.length > 1 ? 'reversed' : 'basic';
+}
+const escapeHtml = (s) => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// Field HTML <-> editor representation { text, images: [name] }
+function parseField(html) {
+  const images = [];
+  let rest = (html || '').replace(/<img[^>]*src="([^"]+)"[^>]*>/gi, (m, src) => { images.push(decodeURIComponent(src)); return ''; });
+  const d = document.createElement('div');
+  d.innerHTML = rest.replace(/<br\s*\/?>/gi, '\n').replace(/<\/(div|p)>/gi, '\n');
+  return { text: (d.textContent || '').replace(/\n{3,}/g, '\n\n').trim(), images };
+}
+function buildField(text, images, keepRaw) {
+  if (keepRaw != null) return keepRaw;
+  let html = escapeHtml(text.trim()).replace(/\n/g, '<br>');
+  for (const n of images) html += `<br><img src="${encodeURIComponent(n)}">`;
+  return html;
+}
+const newGuid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+
+// Shrink photos before storing them; iPad photos are 12 MP otherwise.
+async function shrinkImage(file, max = 1280) {
+  const bmp = await createImageBitmap(file).catch(() => null);
+  if (!bmp) return file;
+  const scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
+  if (scale === 1 && file.size < 400000) return file;
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(bmp.width * scale); canvas.height = Math.round(bmp.height * scale);
+  canvas.getContext('2d').drawImage(bmp, 0, 0, canvas.width, canvas.height);
+  return new Promise(res => canvas.toBlob(b => res(b || file), 'image/jpeg', 0.85));
+}
+
+let editor = null; // { deckId, noteId, kind, images: {1:[],2:[]}, raw: [..] | null, back }
+const edUrls = new Map();
+function thumbUrl(name, blob) { if (!edUrls.has(name)) edUrls.set(name, URL.createObjectURL(blob)); return edUrls.get(name); }
+async function renderThumbs(i) {
+  const box = $(`ed-img${i}`);
+  box.innerHTML = '';
+  for (const name of editor.images[i]) {
+    const row = await db.get('media', name);
+    if (!row) continue;
+    const d = document.createElement('div'); d.className = 'thumb';
+    d.innerHTML = `<img alt=""><button type="button" aria-label="remove">×</button>`;
+    d.querySelector('img').src = thumbUrl(name, row.blob);
+    d.querySelector('button').onclick = () => { editor.images[i] = editor.images[i].filter(n => n !== name); renderThumbs(i); };
+    box.appendChild(d);
+  }
+}
+for (const input of document.querySelectorAll('.ed-img-input')) input.onchange = async (e) => {
+  const file = e.target.files[0]; e.target.value = '';
+  if (!file || !editor) return;
+  try {
+    const blob = await shrinkImage(file);
+    const name = `photo-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.jpg`;
+    await db.put('media', { name, blob });
+    const i = Number(input.dataset.field);
+    editor.images[i].push(name);
+    renderThumbs(i);
+  } catch (err) { console.error(err); toast(t('ed.image_failed')); }
+};
+
+function setEditorKind(kind) {
+  editor.kind = kind;
+  for (const b of document.querySelectorAll('#ed-type button')) b.classList.toggle('on', b.dataset.type === kind);
+  $('ed-l1').textContent = t(kind === 'cloze' ? 'ed.text' : 'ed.front');
+  $('ed-l2').textContent = t(kind === 'cloze' ? 'ed.extra' : 'ed.back');
+  $('ed-hint').textContent = kind === 'cloze' ? t('ed.hint_cloze') : kind === 'reversed' ? t('ed.hint_reversed') : '';
+}
+for (const b of document.querySelectorAll('#ed-type button')) b.onclick = () => { if (!editor.noteId) setEditorKind(b.dataset.type); };
+
+async function openEditor({ deckId, noteId = null, back }) {
+  editor = { deckId, noteId, kind: 'basic', images: { 1: [], 2: [] }, raw: null, back };
+  show('editor', t(noteId ? 'ed.title_edit' : 'ed.title'));
+  $('ed-f1').value = ''; $('ed-f2').value = ''; $('ed-tags').value = '';
+  $('btn-ed-delete').classList.toggle('hidden', !noteId);
+  $('btn-ed-save-add').classList.toggle('hidden', !!noteId);
+  $('ed-type').style.opacity = noteId ? '.5' : '';
+  if (noteId) {
+    const note = await db.get('notes', noteId);
+    const model = await db.get('models', note.modelId);
+    editor.kind = modelKind(model);
+    const f1 = parseField(note.fields[0]), f2 = parseField(note.fields[1] || '');
+    $('ed-f1').value = f1.text; $('ed-f2').value = f2.text;
+    editor.images = { 1: f1.images, 2: f2.images };
+    editor.modelId = note.modelId;
+    // Notes with more than two fields or rich templates: keep extra fields untouched.
+    editor.extraFields = note.fields.slice(2);
+    $('ed-tags').value = (note.tags || []).join(', ');
+  }
+  setEditorKind(editor.kind);
+  renderThumbs(1); renderThumbs(2);
+  setTimeout(() => $('ed-f1').focus(), 50);
+}
+function editorReturn() {
+  for (const u of edUrls.values()) URL.revokeObjectURL(u);
+  edUrls.clear();
+  const back = editor?.back || (() => showDecks());
+  editor = null;
+  back();
+}
+
+async function saveEditor(addAnother) {
+  const text1 = $('ed-f1').value, text2 = $('ed-f2').value;
+  if (!text1.trim() && !editor.images[1].length) { toast(t('ed.empty')); return false; }
+  if (editor.kind === 'cloze' && !clozeNumbers(text1).length) { toast(t('ed.no_cloze')); return false; }
+  const tags = $('ed-tags').value.split(/[,\s]+/).map(x => x.trim()).filter(Boolean);
+  const now = Date.now();
+  let modelId = editor.modelId;
+  if (!modelId) modelId = (await ensureModel(editor.kind)).id;
+  const fields = [buildField(text1, editor.images[1]), buildField(text2, editor.images[2]), ...(editor.extraFields || [])];
+  const noteId = editor.noteId || newGuid();
+  await db.put('notes', { id: noteId, deckId: editor.deckId, modelId, fields, tags, mod: now });
+
+  // Which card ordinals should exist for this note?
+  const wanted = editor.kind === 'cloze' ? clozeNumbers(text1).map(n => n - 1) : editor.kind === 'reversed' ? [0, 1] : [0];
+  const existing = await db.getAllByIndex('cards', 'noteId', noteId);
+  const have = new Set(existing.map(c => c.ord));
+  const add = wanted.filter(o => !have.has(o)).map(ord => ({ id: `${noteId}:${ord}`, deckId: editor.deckId, noteId, ord, state: 'new', due: 0, ivl: 0, ease: 0, step: 0, reps: 0, lapses: 0, order: now + ord, suspended: false }));
+  await db.putMany('cards', add);
+  for (const c of existing) if (!wanted.includes(c.ord)) await db.del('cards', c.id);
+
+  toast(t('toast.card_saved'));
+  if (addAnother) {
+    editor.noteId = null; editor.modelId = null; editor.extraFields = null; editor.images = { 1: [], 2: [] };
+    $('ed-f1').value = ''; $('ed-f2').value = '';
+    renderThumbs(1); renderThumbs(2);
+    $('ed-f1').focus();
+  } else editorReturn();
+  return true;
+}
+$('btn-ed-save').onclick = () => saveEditor(false);
+$('btn-ed-save-add').onclick = () => saveEditor(true);
+$('btn-ed-delete').onclick = async () => {
+  if (!editor?.noteId || !confirm(t('confirm.delete_card'))) return;
+  const cards = await db.getAllByIndex('cards', 'noteId', editor.noteId);
+  for (const c of cards) await db.del('cards', c.id);
+  await db.del('notes', editor.noteId);
+  toast(t('toast.card_deleted'));
+  editorReturn();
+};
+$('btn-edit-card').onclick = () => {
+  if (!study?.card) return;
+  const card = study.card;
+  openEditor({ deckId: card.deckId, noteId: card.noteId, back: async () => {
+    // Re-render the current card with the edited note; drop it if it was deleted.
+    show('study', currentDeck.name);
+    const fresh = await db.get('cards', card.id);
+    if (!fresh) return nextCard();
+    study.card = fresh;
+    await showCard(fresh);
+  } });
+};
+
+// ---------------------------------------------------------------- card browser
+let browserNotes = [];
+async function openBrowser() {
+  show('browser', t('br.title'));
+  $('br-search').value = '';
+  const notes = await db.getAllByIndex('notes', 'deckId', currentDeck.id);
+  const cards = await db.getAllByIndex('cards', 'deckId', currentDeck.id);
+  const stateByNote = new Map();
+  for (const c of cards) {
+    const prev = stateByNote.get(c.noteId);
+    const rank = { new: 0, learn: 1, relearn: 1, review: 2 }[c.state] ?? 0;
+    if (prev == null || rank < prev) stateByNote.set(c.noteId, rank);
+  }
+  browserNotes = notes.map(n => {
+    const f1 = parseField(n.fields[0]), f2 = parseField(n.fields[1] || '');
+    return { id: n.id, q: f1.text || (f1.images.length ? '🖼' : ''), a: f2.text, state: ['new', 'learn', 'review'][stateByNote.get(n.id) ?? 0], mod: n.mod || 0, tags: n.tags || [] };
+  }).sort((a, b) => b.mod - a.mod);
+  renderBrowser();
+}
+function renderBrowser() {
+  const q = $('br-search').value.trim().toLowerCase();
+  const rows = q ? browserNotes.filter(n => (n.q + ' ' + n.a + ' ' + n.tags.join(' ')).toLowerCase().includes(q)) : browserNotes;
+  $('br-count').textContent = t('br.count', { n: rows.length });
+  const list = $('br-list');
+  list.innerHTML = '';
+  if (!rows.length) { list.innerHTML = `<p class="muted center">${t('br.empty')}</p>`; return; }
+  for (const n of rows.slice(0, 300)) {
+    const b = document.createElement('button');
+    b.className = 'note-row';
+    b.innerHTML = `<span class="q"></span><span class="st ${n.state}">${t('st.' + n.state)}</span><span class="a"></span>`;
+    b.querySelector('.q').textContent = n.q;
+    b.querySelector('.a').textContent = n.a;
+    b.onclick = () => openEditor({ deckId: currentDeck.id, noteId: n.id, back: () => openBrowser() });
+    list.appendChild(b);
+  }
+}
+$('br-search').oninput = renderBrowser;
 
 // ---------------------------------------------------------------- settings view
 async function openSettings() {

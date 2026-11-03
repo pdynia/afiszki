@@ -37,6 +37,17 @@ const STRINGS = {
     'err.new_format': 'This deck uses the newest Anki package format. In Anki, export it again with "Support older Anki versions" checked, then import that file.',
     'err.not_apkg': 'Not an Anki package: no collection database found.',
     'warn.media': 'Media index is in a newer format and was skipped.',
+    'btn.new_deck': 'New deck', 'btn.add_card': 'Add card', 'btn.browse': 'Browse cards', 'btn.rename_deck': 'Rename', 'btn.edit': 'Edit card',
+    'prompt.deck_name': 'Deck name', 'prompt.rename': 'New name for the deck', 'toast.deck_exists': 'A deck with that name already exists',
+    'ed.title': 'New card', 'ed.title_edit': 'Edit card', 'ed.type': 'Card type', 'ed.basic': 'Basic', 'ed.reversed': 'Basic + reversed', 'ed.cloze': 'Cloze',
+    'ed.front': 'Front', 'ed.back': 'Back', 'ed.text': 'Text', 'ed.extra': 'Extra (shown on the back)', 'ed.tags': 'Tags (optional)',
+    'ed.hint_cloze': 'Hide a word with {{c1::word}} — e.g. “The capital of {{c1::Spain}} is {{c2::Madrid}}.” Each number becomes its own card.',
+    'ed.hint_reversed': 'Creates two cards: front→back and back→front.',
+    'ed.save': 'Save', 'ed.save_add': 'Save and add another', 'ed.delete': 'Delete this card', 'ed.empty': 'The first field cannot be empty',
+    'ed.no_cloze': 'Add at least one {{c1::…}} cloze', 'toast.card_saved': 'Card saved', 'toast.card_deleted': 'Card deleted', 'confirm.delete_card': 'Delete this card?',
+    'br.title': 'Cards', 'br.search': 'Search cards…', 'br.count': '{n} card{s}', 'br.empty': 'No cards yet — add the first one.',
+    'st.new': 'new', 'st.learn': 'learning', 'st.review': 'review',
+    'ed.add_image': 'Add photo', 'ed.image_failed': 'Could not read that image',
   },
   pl: {
     'app.decks': 'Talie', 'app.deck': 'Talia', 'app.settings': 'Ustawienia', 'app.help': 'Pomoc',
@@ -75,6 +86,17 @@ const STRINGS = {
     'err.new_format': 'Ta talia używa najnowszego formatu Anki. W Anki wyeksportuj ją ponownie z zaznaczoną opcją „Obsługa starszych wersji Anki” (Support older Anki versions) i zaimportuj ten plik.',
     'err.not_apkg': 'To nie jest pakiet Anki: brak bazy kolekcji.',
     'warn.media': 'Indeks mediów jest w nowszym formacie i został pominięty.',
+    'btn.new_deck': 'Nowa talia', 'btn.add_card': 'Dodaj kartę', 'btn.browse': 'Przeglądaj karty', 'btn.rename_deck': 'Zmień nazwę', 'btn.edit': 'Edytuj kartę',
+    'prompt.deck_name': 'Nazwa talii', 'prompt.rename': 'Nowa nazwa talii', 'toast.deck_exists': 'Talia o tej nazwie już istnieje',
+    'ed.title': 'Nowa karta', 'ed.title_edit': 'Edytuj kartę', 'ed.type': 'Rodzaj karty', 'ed.basic': 'Zwykła', 'ed.reversed': 'Zwykła + odwrotna', 'ed.cloze': 'Luka',
+    'ed.front': 'Przód', 'ed.back': 'Tył', 'ed.text': 'Tekst', 'ed.extra': 'Dodatkowo (widoczne na odwrocie)', 'ed.tags': 'Tagi (opcjonalnie)',
+    'ed.hint_cloze': 'Ukryj słowo zapisem {{c1::słowo}} — np. „Stolicą {{c1::Hiszpanii}} jest {{c2::Madryt}}.” Każdy numer to osobna karta.',
+    'ed.hint_reversed': 'Tworzy dwie karty: przód→tył i tył→przód.',
+    'ed.save': 'Zapisz', 'ed.save_add': 'Zapisz i dodaj następną', 'ed.delete': 'Usuń tę kartę', 'ed.empty': 'Pierwsze pole nie może być puste',
+    'ed.no_cloze': 'Dodaj co najmniej jedną lukę {{c1::…}}', 'toast.card_saved': 'Karta zapisana', 'toast.card_deleted': 'Karta usunięta', 'confirm.delete_card': 'Usunąć tę kartę?',
+    'br.title': 'Karty', 'br.search': 'Szukaj kart…', 'br.count': '{n} kart{s}', 'br.empty': 'Nie ma jeszcze kart — dodaj pierwszą.',
+    'st.new': 'nowa', 'st.learn': 'w nauce', 'st.review': 'powtórka',
+    'ed.add_image': 'Dodaj zdjęcie', 'ed.image_failed': 'Nie udało się wczytać zdjęcia',
   },
 };
 
@@ -97,7 +119,7 @@ function plural(n, key) {
     const few = n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14);
     if (key === 'decks.summary') return n === 1 ? 'a' : few ? 'e' : 'i';           // talia / talie / talii
     if (key === 'deck.reviews') return n === 1 ? 'ka' : few ? 'ki' : 'ek';         // powtórka / powtórki / powtórek
-    if (key === 'done.pending') return n === 1 ? 'a' : few ? 'y' : '';             // karta / karty / kart
+    if (key === 'done.pending' || key === 'br.count') return n === 1 ? 'a' : few ? 'y' : ''; // karta / karty / kart
     return '';
   }
   return n === 1 ? '' : 's';
@@ -113,4 +135,5 @@ export function applyTranslations(root = document) {
   for (const el of root.querySelectorAll('[data-i18n]')) el.textContent = t(el.dataset.i18n);
   for (const el of root.querySelectorAll('[data-i18n-html]')) el.innerHTML = t(el.dataset.i18nHtml);
   for (const el of root.querySelectorAll('[data-i18n-label]')) el.setAttribute('aria-label', t(el.dataset.i18nLabel));
+  for (const el of root.querySelectorAll('[data-i18n-placeholder]')) el.setAttribute('placeholder', t(el.dataset.i18nPlaceholder));
 }
