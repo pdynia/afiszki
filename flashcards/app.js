@@ -7,7 +7,7 @@ import { HELP } from './help.js';
 import { clozeNumbers } from './render.js';
 import * as syncer from './sync.js';
 
-export const VERSION = '0.8.2';
+export const VERSION = '0.8.3';
 const $ = (id) => document.getElementById(id);
 const DAY = 86400000;
 
@@ -1043,7 +1043,11 @@ function renderSyncUI() {
   const group = $('sync-group');
   group.classList.toggle('hidden', st.reason === 'no-config');
   $('sync-unavailable').classList.toggle('hidden', st.enabled);
-  if (!st.enabled) $('sync-unavailable').textContent = t('sync.unavailable', { why: st.reason === 'sdk-missing' ? t('sync.sdk_missing') : st.reason });
+  if (!st.enabled) {
+    const loaded = [...document.scripts].filter(x => /firebase/.test(x.src)).map(x => x.src.split('/').pop().replace('firebase-', '').replace('-compat.js', '')).join(', ');
+    const diag = `[firebase=${typeof firebase}${typeof firebase !== 'undefined' ? ' auth=' + typeof firebase.auth + ' firestore=' + typeof firebase.firestore + ' apps=' + (firebase.apps || []).length : ''}; scripts: ${loaded || 'none'}; online=${navigator.onLine}]`;
+    $('sync-unavailable').textContent = t('sync.unavailable', { why: (st.reason === 'sdk-missing' ? t('sync.sdk_missing') : st.reason || '?') + ' ' + diag });
+  }
   $('sync-signed-out').classList.toggle('hidden', !st.enabled || !!st.user);
   $('sync-signed-in').classList.toggle('hidden', !st.enabled || !st.user);
   const btn = $('btn-sync');
@@ -1187,7 +1191,7 @@ $('btn-notetypes').onclick = openNoteTypes;
 (async () => {
   await loadSettings();
   syncer.state.lastSync = await db.getMeta('sync:lastSync', 0);
-  try { syncer.init(); } catch (e) { console.warn('sync init failed', e); }
+  try { syncer.init(); } catch (e) { console.error('sync init failed', e); syncer.state.reason = 'init-threw: ' + (e && (e.message || e.code) || e); }
   renderSyncUI();
   await showDecks();
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
