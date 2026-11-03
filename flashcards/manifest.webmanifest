@@ -1,0 +1,13 @@
+{
+  "name": "Cards – spaced repetition",
+  "short_name": "Cards",
+  "description": "Study Anki .apkg decks in the browser. No install, works offline.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f7f9",
+  "theme_color": "#1f6feb",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
