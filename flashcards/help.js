@@ -65,7 +65,7 @@ export const HELP = {
         <li><strong>Cloze</strong> — a sentence with a hidden part: write <code>{{c1::word}}</code> around what should be hidden. <code>c1</code>, <code>c2</code>… each become a separate card.</li>
       </ul>
     </li>
-    <li>Type the text. <strong>Add photo</strong> under a field attaches a picture from your photos or straight from the camera — photos are shrunk automatically so they don't fill the iPad.</li>
+    <li>Type the text — the toolbar above each field gives bold, italic, underline, sub/superscript (H<sub>2</sub>O, x<sup>2</sup>), font, size, colour, highlight, bullet and numbered lists and alignment. The <strong>[…]</strong> button turns the selected text into a cloze. <strong>Add photo</strong> under a field attaches a picture from your photos or straight from the camera — photos are shrunk automatically so they don't fill the iPad.</li>
     <li><strong>Save</strong>, or <strong>Save and add another</strong> to keep going.</li>
   </ol>
   <p><strong>Browse cards</strong> on the deck page lists everything in the deck with a search box; tap a card to edit or delete it. During study, the pencil icon at the top edits the card you're looking at.</p>
@@ -203,7 +203,7 @@ export const HELP = {
         <li><strong>Luka</strong> — zdanie z ukrytym fragmentem: otocz go zapisem <code>{{c1::słowo}}</code>. Każdy numer <code>c1</code>, <code>c2</code>… to osobna karta.</li>
       </ul>
     </li>
-    <li>Wpisz tekst. <strong>Dodaj zdjęcie</strong> pod polem dołącza obrazek ze zdjęć albo prosto z aparatu — zdjęcia są automatycznie zmniejszane, żeby nie zapełniały iPada.</li>
+    <li>Wpisz tekst — pasek nad każdym polem daje pogrubienie, kursywę, podkreślenie, indeks dolny/górny (H<sub>2</sub>O, x<sup>2</sup>), krój, wielkość, kolor, zakreślenie, wypunktowanie, listę numerowaną i wyrównanie. Przycisk <strong>[…]</strong> zamienia zaznaczony tekst w lukę. <strong>Dodaj zdjęcie</strong> pod polem dołącza obrazek ze zdjęć albo prosto z aparatu — zdjęcia są automatycznie zmniejszane, żeby nie zapełniały iPada.</li>
     <li><strong>Zapisz</strong> albo <strong>Zapisz i dodaj następną</strong>, żeby dodawać dalej.</li>
   </ol>
   <p><strong>Przeglądaj karty</strong> na stronie talii pokazuje wszystkie karty z wyszukiwarką; stuknij kartę, żeby ją poprawić lub usunąć. W trakcie nauki ołówek u góry otwiera edycję aktualnej karty.</p>

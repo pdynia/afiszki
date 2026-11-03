@@ -232,7 +232,24 @@
         </div>
       </div>
       <div class="group" id="ed-fields">
-        <div class="field col"><label for="ed-f1" id="ed-l1" data-i18n="ed.front">Front</label><textarea id="ed-f1" rows="3"></textarea>
+        <div class="field col"><span id="ed-l1" data-i18n="ed.front">Front</span><div class="toolbar" data-for="ed-f1">
+            <button type="button" data-cmd="bold" title="Bold"><b>B</b></button>
+            <button type="button" data-cmd="italic" title="Italic"><i>I</i></button>
+            <button type="button" data-cmd="underline" title="Underline"><u>U</u></button>
+            <button type="button" data-cmd="superscript" title="Superscript">x<sup>2</sup></button>
+            <button type="button" data-cmd="subscript" title="Subscript">H<sub>2</sub></button>
+            <select data-font title="Font"><option value="">Aa</option><option value="Arial, sans-serif">Arial</option><option value="Georgia, serif">Serif</option><option value="Nunito, ui-rounded, sans-serif">Nunito</option><option value="ui-monospace, Menlo, monospace">Mono</option><option value="Comic Sans MS, cursive">Comic</option></select>
+            <select data-size title="Size"><option value="">T</option><option value="2">S</option><option value="3">M</option><option value="5">L</option><option value="6">XL</option></select>
+            <label class="colorbtn" title="Text colour">A<input type="color" data-color value="#2C3B4D"></label>
+            <label class="colorbtn hl" title="Highlight">▮<input type="color" data-hilite value="#FFE08A"></label>
+            <button type="button" data-cmd="insertUnorderedList" title="Bullets">•≡</button>
+            <button type="button" data-cmd="insertOrderedList" title="Numbered">1≡</button>
+            <button type="button" data-cmd="justifyLeft" title="Left">⇤</button>
+            <button type="button" data-cmd="justifyCenter" title="Centre">☰</button>
+            <button type="button" data-cmd="removeFormat" title="Clear formatting">⌫</button>
+            <button type="button" data-cloze title="Cloze" class="cloze-btn">[…]</button>
+          </div>
+          <div id="ed-f1" class="rte" contenteditable="true"></div>
           <div class="thumbs" id="ed-img1"></div>
           <div class="thumbs" id="ed-aud1"></div>
           <div class="row imgrow">
@@ -241,7 +258,24 @@
             <label class="btn small-btn"><svg class="ico"><use href="#i-audio"/></svg> <span data-i18n="ed.add_audio">Audio file</span><input type="file" accept="audio/*" data-field="1" class="ed-aud-input" hidden></label>
           </div>
         </div>
-        <div class="field col"><label for="ed-f2" id="ed-l2" data-i18n="ed.back">Back</label><textarea id="ed-f2" rows="3"></textarea>
+        <div class="field col"><span id="ed-l2" data-i18n="ed.back">Back</span><div class="toolbar" data-for="ed-f2">
+            <button type="button" data-cmd="bold" title="Bold"><b>B</b></button>
+            <button type="button" data-cmd="italic" title="Italic"><i>I</i></button>
+            <button type="button" data-cmd="underline" title="Underline"><u>U</u></button>
+            <button type="button" data-cmd="superscript" title="Superscript">x<sup>2</sup></button>
+            <button type="button" data-cmd="subscript" title="Subscript">H<sub>2</sub></button>
+            <select data-font title="Font"><option value="">Aa</option><option value="Arial, sans-serif">Arial</option><option value="Georgia, serif">Serif</option><option value="Nunito, ui-rounded, sans-serif">Nunito</option><option value="ui-monospace, Menlo, monospace">Mono</option><option value="Comic Sans MS, cursive">Comic</option></select>
+            <select data-size title="Size"><option value="">T</option><option value="2">S</option><option value="3">M</option><option value="5">L</option><option value="6">XL</option></select>
+            <label class="colorbtn" title="Text colour">A<input type="color" data-color value="#2C3B4D"></label>
+            <label class="colorbtn hl" title="Highlight">▮<input type="color" data-hilite value="#FFE08A"></label>
+            <button type="button" data-cmd="insertUnorderedList" title="Bullets">•≡</button>
+            <button type="button" data-cmd="insertOrderedList" title="Numbered">1≡</button>
+            <button type="button" data-cmd="justifyLeft" title="Left">⇤</button>
+            <button type="button" data-cmd="justifyCenter" title="Centre">☰</button>
+            <button type="button" data-cmd="removeFormat" title="Clear formatting">⌫</button>
+            <button type="button" data-cloze title="Cloze" class="cloze-btn">[…]</button>
+          </div>
+          <div id="ed-f2" class="rte" contenteditable="true"></div>
           <div class="thumbs" id="ed-img2"></div>
           <div class="thumbs" id="ed-aud2"></div>
           <div class="row imgrow">
