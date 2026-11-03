@@ -7,7 +7,7 @@ import { HELP } from './help.js';
 import { clozeNumbers } from './render.js';
 import * as syncer from './sync.js';
 
-export const VERSION = '0.8.0';
+export const VERSION = '0.8.1';
 const $ = (id) => document.getElementById(id);
 const DAY = 86400000;
 
@@ -1043,8 +1043,8 @@ function renderSyncUI() {
   const group = $('sync-group');
   group.classList.toggle('hidden', !st.enabled);
   const btn = $('btn-sync');
-  btn.classList.toggle('hidden', !st.enabled || !st.user);
   btn.className = 'icon-btn' + (st.status === 'syncing' ? ' sync-busy' : st.status === 'error' ? ' sync-error' : st.pending ? ' sync-pending' : '');
+  btn.classList.toggle('hidden', !st.enabled || !st.user);
   btn.title = t('sync.status_' + (st.status === 'signed-out' ? 'off' : st.status)) + (st.error ? `: ${st.error}` : '');
   if (!st.enabled) return;
   $('sync-signed-out').classList.toggle('hidden', !!st.user);
@@ -1189,6 +1189,15 @@ $('btn-notetypes').onclick = openNoteTypes;
   renderSyncUI();
   await showDecks();
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW registration failed', err));
+    // Reload once when a new version of the app has taken over.
+    let reloading = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (reloading || !navigator.serviceWorker.controller) return;
+      reloading = true;
+      if (current !== 'study') location.reload();
+    });
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
+      .then(reg => { reg.update().catch(() => {}); setInterval(() => reg.update().catch(() => {}), 60 * 60000); })
+      .catch(err => console.warn('SW registration failed', err));
   }
 })();

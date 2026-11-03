@@ -1,5 +1,5 @@
 // Offline cache for the app shell. Bump CACHE when files change.
-const CACHE = 'cards-v0.8.0';
+const CACHE = 'cards-v0.8.1';
 const ASSETS = [
   './', './index.html', './styles.css', './app.js', './db.js', './apkg.js', './scheduler.js', './fsrs.js', './render.js', './sync.js', './firebase-config.js', './i18n.js', './help.js',
   './manifest.webmanifest', './icon.svg',
@@ -15,15 +15,23 @@ self.addEventListener('activate', (e) => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 
+// Network-first for the app's own files (so a deploy is picked up on the next
+// load), falling back to the cache when offline. Vendor libraries are cache-first.
 self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
-  e.respondWith(
-    caches.match(e.request, { ignoreSearch: true }).then(cached => {
-      const network = fetch(e.request).then(res => {
-        if (res.ok) caches.open(CACHE).then(c => c.put(e.request, res.clone()));
-        return res;
-      }).catch(() => cached);
-      return cached || network;
-    })
-  );
+  const url = new URL(e.request.url);
+  if (e.request.method !== 'GET' || url.origin !== location.origin) return;
+  const cacheFirst = url.pathname.includes('/vendor/');
+  e.respondWith((async () => {
+    const cache = await caches.open(CACHE);
+    const cached = await cache.match(e.request, { ignoreSearch: true });
+    if (cacheFirst && cached) return cached;
+    try {
+      const res = await fetch(e.request, { cache: 'no-cache' });
+      if (res.ok) cache.put(e.request, res.clone());
+      return res;
+    } catch {
+      return cached || Response.error();
+    }
+  })());
 });
+self.addEventListener('message', (e) => { if (e.data === 'skipWaiting') self.skipWaiting(); });
