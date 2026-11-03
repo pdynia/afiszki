@@ -7,7 +7,7 @@ import { HELP } from './help.js';
 import { clozeNumbers } from './render.js';
 import * as syncer from './sync.js';
 
-export const VERSION = '0.8.5';
+export const VERSION = '0.8.6';
 const $ = (id) => document.getElementById(id);
 const DAY = 86400000;
 
