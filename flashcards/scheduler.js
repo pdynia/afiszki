@@ -45,7 +45,9 @@ function answerFsrs(card, grade, cfg, now) {
   const steps = cfg.learnSteps.length ? cfg.learnSteps : [1];
   const relearn = cfg.relearnSteps.length ? cfg.relearnSteps : [10];
   const c = { ...card, reps: (card.reps || 0) + 1, lastReview: now };
-  const elapsed = card.lastReview ? Math.max(0, (now - card.lastReview) / DAY) : 0;
+  // Imported cards may lack lastReview: infer it from due - interval.
+  const last = card.lastReview || (card.state === 'review' && card.due && card.ivl ? card.due - card.ivl * DAY : 0);
+  const elapsed = last ? Math.max(0, (now - last) / DAY) : (card.state === 'review' ? Math.max(1, card.ivl || 1) : 0);
 
   // Cards that only have SM-2 data get an estimated FSRS state.
   if (card.state !== 'new' && !(card.stability > 0)) {
@@ -212,7 +214,7 @@ export function classify(cards, now = Date.now()) {
   const end = dayEnd(now);
   const res = { newCards: [], learn: [], learnLater: [], due: [], total: cards.length };
   for (const c of cards) {
-    if (c.suspended) continue;
+    if (c.suspended || (c.buriedUntil && c.buriedUntil > now)) continue;
     if (c.state === 'new') res.newCards.push(c);
     else if (c.state === 'learn' || c.state === 'relearn') {
       (c.due <= now ? res.learn : res.learnLater).push(c);

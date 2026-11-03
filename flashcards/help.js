@@ -115,6 +115,20 @@ export const HELP = {
 </section>
 
 <section>
+  <h2>Other tools</h2>
+  <ul>
+    <li><strong>Record</strong> in the card editor records your voice (pronunciation, a sentence) straight into the card; <strong>Audio file</strong> attaches an existing recording. With <em>Play audio automatically</em> on, it plays when the card appears.</li>
+    <li><strong>Type the answer</strong> (Settings → Study): instead of just flipping, you type the answer and the app shows letter by letter what was wrong. Works for cloze cards too.</li>
+    <li><strong>Statistics</strong> on a deck page: how many cards are new / learning / young / mature, retention over the last 30 days, reviews per day, what's coming due, and your hardest cards.</li>
+    <li><strong>⋯ during study</strong>: <em>Flag</em> a card to look at later (tap again to cycle colours), <em>Suspend</em> it so it never comes up until you unsuspend it in the editor, or <em>Bury</em> it until tomorrow. The card browser can filter by flagged / suspended.</li>
+    <li><strong>Sub-decks</strong>: name a deck <code>Chemistry::Organic</code> and it is grouped under <em>Chemistry</em>. Studying the group studies all of its decks.</li>
+    <li><strong>Custom study</strong>: study only cards with a tag, only flagged or hard cards, review ahead of schedule before a test, or add extra new cards for the day.</li>
+    <li><strong>Seconds per card</strong>: an optional timer that reveals the answer when time is up.</li>
+    <li><strong>Note types</strong> (Settings): edit the HTML/CSS templates of a card type, Anki-style.</li>
+  </ul>
+</section>
+
+<section>
   <h2>Problems?</h2>
   <ul>
     <li><em>"This deck uses the newest Anki package format"</em> — export again from Anki with <strong>Support older Anki versions</strong> ticked (step 2).</li>
@@ -235,6 +249,20 @@ export const HELP = {
     <li><strong>Przywróć z kopii…</strong> wczytuje taki plik — także na innym urządzeniu; tak przenosisz się na nowego iPada albo komputer.</li>
     <li><strong>Eksportuj .apkg</strong> na stronie talii tworzy plik Anki z aktualnymi postępami. Zaimportuj go w Anki na komputerze przez <em>Plik → Importuj</em>.</li>
     <li>W Ustawieniach stuknij raz <strong>Poproś o trwałe przechowywanie</strong>, żeby przeglądarka nigdy nie usunęła talii dla zwolnienia miejsca.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Pozostałe narzędzia</h2>
+  <ul>
+    <li><strong>Nagraj</strong> w edytorze karty nagrywa Twój głos (wymowę, zdanie) prosto do karty; <strong>Plik audio</strong> dołącza gotowe nagranie. Przy włączonym <em>Odtwarzaj dźwięk automatycznie</em> dźwięk gra, gdy karta się pojawi.</li>
+    <li><strong>Wpisywanie odpowiedzi</strong> (Ustawienia → Nauka): zamiast tylko odkrywać, wpisujesz odpowiedź, a aplikacja pokazuje litera po literze, co było źle. Działa też z lukami.</li>
+    <li><strong>Statystyki</strong> na stronie talii: ile kart jest nowych / w nauce / młodych / utrwalonych, zapamiętywalność z ostatnich 30 dni, powtórki dziennie, co nadchodzi i najtrudniejsze karty.</li>
+    <li><strong>⋯ w trakcie nauki</strong>: <em>Flaga</em> oznacza kartę do sprawdzenia później (kolejne stuknięcia zmieniają kolor), <em>Zawieś</em> wyłącza kartę, aż przywrócisz ją w edytorze, <em>Odłóż do jutra</em> chowa ją na dziś. Przeglądarka kart filtruje po fladze / zawieszeniu.</li>
+    <li><strong>Podtalie</strong>: nazwij talię <code>Chemia::Organiczna</code>, a znajdzie się w grupie <em>Chemia</em>. Nauka grupy obejmuje wszystkie jej talie.</li>
+    <li><strong>Nauka własna</strong>: tylko karty z tagiem, tylko z flagą albo trudne, powtórka z wyprzedzeniem przed sprawdzianem, albo dodatkowe nowe karty na dziś.</li>
+    <li><strong>Sekund na kartę</strong>: opcjonalny licznik, który odkrywa odpowiedź po upływie czasu.</li>
+    <li><strong>Typy notatek</strong> (Ustawienia): edycja szablonów HTML/CSS typu karty, jak w Anki.</li>
   </ul>
 </section>
 

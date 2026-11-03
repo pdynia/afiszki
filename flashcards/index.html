@@ -30,6 +30,10 @@
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 11v6M14 11v6M6 7l1 12h10l1-12M9 7V4h6v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8.5" cy="10" r="1.6" fill="currentColor"/><path d="m4 18 5-5 3 3 3-3 5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-audio" viewBox="0 0 24 24"><path d="M4 10v4h3l4 4V6L7 10H4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15 9a4 4 0 0 1 0 6M17.5 6.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4h10l-1.5 3.5L16 11H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-stats" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
     <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5v.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></symbol>
   </svg>
 
@@ -39,6 +43,7 @@
     <div class="spacer"></div>
     <button id="btn-undo" class="icon-btn hidden" aria-label="Undo last answer" disabled><svg><use href="#i-undo"/></svg></button>
     <button id="btn-edit-card" class="icon-btn hidden" aria-label="Edit card" data-i18n-label="btn.edit"><svg><use href="#i-edit"/></svg></button>
+    <button id="btn-study-more" class="icon-btn hidden" aria-label="More"><svg><use href="#i-more"/></svg></button>
     <button id="btn-help" class="icon-btn" aria-label="Help" data-i18n-label="app.help"><svg><use href="#i-help"/></svg></button>
     <button id="btn-more" class="icon-btn hidden" aria-label="More"><svg><use href="#i-more"/></svg></button>
     <button id="btn-settings" class="icon-btn" aria-label="Settings" data-i18n-label="app.settings"><svg><use href="#i-gear"/></svg></button>
@@ -110,6 +115,10 @@
 
       <button id="btn-study" class="btn primary big" data-i18n="btn.study">Study now</button>
       <div class="row">
+        <button id="btn-custom" class="btn" data-i18n="btn.custom">Custom study</button>
+        <button id="btn-stats" class="btn" data-i18n="btn.stats">Statistics</button>
+      </div>
+      <div class="row">
         <button id="btn-add-card" class="btn" data-i18n="btn.add_card">Add card</button>
         <button id="btn-browse" class="btn" data-i18n="btn.browse">Browse cards</button>
       </div>
@@ -126,9 +135,16 @@
         <span class="pill new"><i></i><b id="s-new">0</b> <span data-i18n="study.new">new</span></span>
         <span class="pill learn"><i></i><b id="s-learn">0</b> <span data-i18n="study.learn">learning</span></span>
         <span class="pill due"><i></i><b id="s-due">0</b> <span data-i18n="study.due">review</span></span>
+        <span id="flag-dot" class="flagdot hidden"></span>
       </div>
       <div id="card-wrap" class="card-wrap">
         <div id="card-host" class="card-host" tabindex="0" role="button" aria-label="Show answer"></div>
+        <div id="timer-bar" class="timer hidden"><i></i></div>
+        <div id="type-wrap" class="type-wrap hidden">
+          <input id="type-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-i18n-placeholder="study.type_here" placeholder="Type the answer…">
+          <button id="btn-type-check" class="btn primary" data-i18n="study.check">Check</button>
+        </div>
+        <div id="type-result" class="type-result hidden"></div>
         <div class="card-hint" id="card-hint"></div>
       </div>
       <div class="study-controls">
@@ -168,6 +184,13 @@
         <label class="field" id="row-retention"><span data-i18n="set.retention">Desired retention (%)</span><input id="set-retention" type="number" inputmode="numeric" min="70" max="97"></label>
         <label class="field"><span data-i18n="set.steps">Learning steps (minutes)</span><input id="set-steps" type="text" placeholder="1, 10"></label>
         <p class="muted small" data-i18n="set.algo_hint"></p>
+      </div>
+      <div class="group">
+        <div class="group-title" data-i18n="set.study">Study</div>
+        <label class="field"><span data-i18n="set.type_answer">Type the answer</span><select id="set-type"><option value="0" data-i18n="set.off">Off</option><option value="1" data-i18n="set.on">On</option></select></label>
+        <label class="field"><span data-i18n="set.autoplay">Play audio automatically</span><select id="set-autoplay"><option value="1" data-i18n="set.on">On</option><option value="0" data-i18n="set.off">Off</option></select></label>
+        <label class="field"><span data-i18n="set.timelimit">Seconds per card (0 = no limit)</span><input id="set-timelimit" type="number" inputmode="numeric" min="0" max="600"></label>
+        <button id="btn-notetypes" class="btn row-btn" data-i18n="set.notetypes">Note types (card templates)…</button>
       </div>
       <div class="group">
         <div class="group-title" data-i18n="set.appearance">Appearance</div>
@@ -211,28 +234,88 @@
       <div class="group" id="ed-fields">
         <div class="field col"><label for="ed-f1" id="ed-l1" data-i18n="ed.front">Front</label><textarea id="ed-f1" rows="3"></textarea>
           <div class="thumbs" id="ed-img1"></div>
-          <div class="row imgrow"><label class="btn small-btn"><svg class="ico"><use href="#i-image"/></svg> <span data-i18n="ed.add_image">Add photo</span><input type="file" accept="image/*" data-field="1" class="ed-img-input" hidden></label></div>
+          <div class="thumbs" id="ed-aud1"></div>
+          <div class="row imgrow">
+            <label class="btn small-btn"><svg class="ico"><use href="#i-image"/></svg> <span data-i18n="ed.add_image">Add photo</span><input type="file" accept="image/*" data-field="1" class="ed-img-input" hidden></label>
+            <button type="button" class="btn small-btn ed-rec" data-field="1"><svg class="ico"><use href="#i-mic"/></svg> <span data-i18n="ed.record">Record</span></button>
+            <label class="btn small-btn"><svg class="ico"><use href="#i-audio"/></svg> <span data-i18n="ed.add_audio">Audio file</span><input type="file" accept="audio/*" data-field="1" class="ed-aud-input" hidden></label>
+          </div>
         </div>
         <div class="field col"><label for="ed-f2" id="ed-l2" data-i18n="ed.back">Back</label><textarea id="ed-f2" rows="3"></textarea>
           <div class="thumbs" id="ed-img2"></div>
-          <div class="row imgrow"><label class="btn small-btn"><svg class="ico"><use href="#i-image"/></svg> <span data-i18n="ed.add_image">Add photo</span><input type="file" accept="image/*" data-field="2" class="ed-img-input" hidden></label></div>
+          <div class="thumbs" id="ed-aud2"></div>
+          <div class="row imgrow">
+            <label class="btn small-btn"><svg class="ico"><use href="#i-image"/></svg> <span data-i18n="ed.add_image">Add photo</span><input type="file" accept="image/*" data-field="2" class="ed-img-input" hidden></label>
+            <button type="button" class="btn small-btn ed-rec" data-field="2"><svg class="ico"><use href="#i-mic"/></svg> <span data-i18n="ed.record">Record</span></button>
+            <label class="btn small-btn"><svg class="ico"><use href="#i-audio"/></svg> <span data-i18n="ed.add_audio">Audio file</span><input type="file" accept="audio/*" data-field="2" class="ed-aud-input" hidden></label>
+          </div>
         </div>
         <p class="muted small" id="ed-hint"></p>
         <label class="field col"><span data-i18n="ed.tags">Tags (optional)</span><input id="ed-tags" type="text" placeholder="chemistry, chapter1"></label>
       </div>
       <button id="btn-ed-save" class="btn primary big" data-i18n="ed.save">Save</button>
       <button id="btn-ed-save-add" class="btn big" data-i18n="ed.save_add">Save and add another</button>
+      <button id="btn-ed-suspend" class="btn big hidden"></button>
       <button id="btn-ed-delete" class="btn big danger hidden" data-i18n="ed.delete">Delete this card</button>
     </section>
 
     <!-- Card browser -->
     <section id="view-browser" class="view hidden">
       <input id="br-search" type="search" class="search" data-i18n-placeholder="br.search" placeholder="Search…">
+      <div class="chips" id="br-filter">
+        <button data-f="all" class="on" data-i18n="br.f_all">All</button>
+        <button data-f="new" data-i18n="st.new">new</button>
+        <button data-f="due" data-i18n="br.f_due">due</button>
+        <button data-f="flag" data-i18n="br.f_flag">flagged</button>
+        <button data-f="susp" data-i18n="br.f_susp">suspended</button>
+      </div>
       <div class="panel">
         <div class="section-head"><h2><svg class="sh-ico"><use href="#i-cards"/></svg><span id="br-count"></span></h2></div>
         <div id="br-list" class="deck-list"></div>
       </div>
       <button id="btn-br-add" class="btn primary big"><svg class="ico"><use href="#i-plus"/></svg> <span data-i18n="btn.add_card">Add card</span></button>
+    </section>
+
+    <!-- Statistics -->
+    <section id="view-stats" class="view hidden">
+      <div class="card-panel">
+        <div class="section-head"><h3 data-i18n="stats.cards">Cards</h3><span class="muted" id="st-total"></span></div>
+        <div class="stack" id="st-states"></div>
+        <div class="legend" id="st-legend"></div>
+      </div>
+      <div class="summary">
+        <div><strong id="st-ret">–</strong><span data-i18n="stats.retention">retention (30 d)</span></div>
+        <div><strong id="st-reviews">0</strong><span data-i18n="stats.reviews30">reviews (30 d)</span></div>
+        <div><strong id="st-time">–</strong><span data-i18n="stats.avg_time">per card</span></div>
+      </div>
+      <div class="card-panel">
+        <div class="section-head"><h3 data-i18n="stats.history">Reviews, last 30 days</h3><span class="muted" id="st-hist-total"></span></div>
+        <div class="hist hist30" id="st-hist"></div>
+      </div>
+      <div class="card-panel">
+        <div class="section-head"><h3 data-i18n="stats.forecast">Due, next 30 days</h3><span class="muted" id="st-forecast-total"></span></div>
+        <div class="hist hist30" id="st-forecast"></div>
+      </div>
+      <div class="card-panel">
+        <div class="section-head"><h3 data-i18n="stats.hardest">Hardest cards</h3></div>
+        <div id="st-hard" class="deck-list"></div>
+      </div>
+    </section>
+
+    <!-- Note types -->
+    <section id="view-notetypes" class="view hidden">
+      <div class="panel"><div id="nt-list" class="deck-list"></div></div>
+      <p class="muted small" data-i18n="nt.hint"></p>
+    </section>
+    <section id="view-template" class="view hidden">
+      <div class="group">
+        <label class="field"><span data-i18n="nt.template">Template</span><select id="tp-select"></select></label>
+        <div class="field col"><span data-i18n="nt.front">Front (question) HTML</span><textarea id="tp-qfmt" rows="4" spellcheck="false"></textarea></div>
+        <div class="field col"><span data-i18n="nt.back">Back (answer) HTML</span><textarea id="tp-afmt" rows="4" spellcheck="false"></textarea></div>
+        <div class="field col"><span data-i18n="nt.css">Styling (CSS)</span><textarea id="tp-css" rows="6" spellcheck="false"></textarea></div>
+        <p class="muted small" id="tp-fields"></p>
+      </div>
+      <button id="btn-tp-save" class="btn primary big" data-i18n="btn.save">Save</button>
     </section>
 
     <!-- Help -->
@@ -252,6 +335,30 @@
     </div>
   </div>
 
+  <div id="sheet-study" class="sheet hidden" role="dialog">
+    <div class="sheet-backdrop"></div>
+    <div class="sheet-body">
+      <div class="sheet-grip"></div>
+      <button id="ss-flag" class="btn row-btn"><svg class="ico"><use href="#i-flag"/></svg> <span data-i18n="study.flag">Flag</span></button>
+      <button id="ss-suspend" class="btn row-btn"><span data-i18n="study.suspend">Suspend card</span></button>
+      <button id="ss-bury" class="btn row-btn"><span data-i18n="study.bury">Bury until tomorrow</span></button>
+      <button id="ss-cancel" class="btn row-btn" data-i18n="btn.cancel">Cancel</button>
+    </div>
+  </div>
+  <div id="sheet-custom" class="sheet hidden" role="dialog">
+    <div class="sheet-backdrop"></div>
+    <div class="sheet-body">
+      <div class="sheet-grip"></div>
+      <div class="group-title" data-i18n="cs.title">Custom study</div>
+      <label class="field"><span data-i18n="cs.tag">Only cards with tag</span><select id="cs-tag"><option value="">—</option></select></label>
+      <label class="field"><span data-i18n="cs.flag">Only flagged cards</span><input id="cs-flag" type="checkbox"></label>
+      <label class="field"><span data-i18n="cs.hard">Only hard cards (2+ lapses)</span><input id="cs-hard" type="checkbox"></label>
+      <label class="field"><span data-i18n="cs.ahead">Review ahead (days)</span><input id="cs-ahead" type="number" inputmode="numeric" min="0" max="365" value="0"></label>
+      <label class="field"><span data-i18n="cs.new">Extra new cards</span><input id="cs-new" type="number" inputmode="numeric" min="0" max="999" value="0"></label>
+      <label class="field"><span data-i18n="cs.nolimit">Ignore daily limits</span><input id="cs-nolimit" type="checkbox"></label>
+      <div class="row" style="padding:8px"><button id="cs-cancel" class="btn" data-i18n="btn.cancel">Cancel</button><button id="cs-start" class="btn primary" data-i18n="cs.start">Start</button></div>
+    </div>
+  </div>
   <div id="drop-overlay" class="drop-overlay hidden"><div data-i18n="drop.hint">Drop the .apkg file to import</div></div>
   <div id="toast" class="toast hidden" role="status"></div>
 
