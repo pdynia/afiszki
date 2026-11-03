@@ -97,6 +97,8 @@ export const HELP = {
   <ul>
     <li><strong>New cards per day</strong> — how many unseen cards are introduced each day (20 is a good default; lower it if reviews pile up).</li>
     <li><strong>Maximum reviews per day</strong> — a safety cap on reviews.</li>
+    <li><strong>Scheduling algorithm</strong> — <strong>FSRS</strong> (default) is the modern algorithm Anki uses; it learns how hard each card is for you and spaces reviews so you need fewer of them. <strong>SM‑2</strong> is the classic one.</li>
+    <li><strong>Desired retention</strong> — how sure you want to be of remembering a card when it comes up. 90% is the sweet spot; 95% roughly doubles the reviews.</li>
     <li><strong>Learning steps</strong> — minutes between repetitions of a brand-new card (default <code>1, 10</code>).</li>
     <li><strong>Theme</strong> and <strong>Language</strong>.</li>
   </ul>
@@ -219,6 +221,8 @@ export const HELP = {
   <ul>
     <li><strong>Nowe karty dziennie</strong> — ile nowych kart pojawia się każdego dnia (20 to dobry start; zmniejsz, jeśli powtórek robi się za dużo).</li>
     <li><strong>Maks. powtórek dziennie</strong> — górny limit powtórek.</li>
+    <li><strong>Algorytm planowania</strong> — <strong>FSRS</strong> (domyślny) to nowoczesny algorytm Anki; uczy się, jak trudna jest dla Ciebie każda karta, i tak rozkłada powtórki, żeby było ich mniej. <strong>SM‑2</strong> to klasyczny algorytm.</li>
+    <li><strong>Docelowa zapamiętywalność</strong> — na ile pewnie chcesz pamiętać kartę, gdy się pojawi. 90% to złoty środek; 95% mniej więcej podwaja liczbę powtórek.</li>
     <li><strong>Kroki nauki</strong> — minuty między powtórzeniami zupełnie nowej karty (domyślnie <code>1, 10</code>).</li>
     <li><strong>Motyw</strong> i <strong>Język</strong>.</li>
   </ul>
