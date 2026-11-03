@@ -11,7 +11,7 @@ const CHUNK = 700 * 1024;          // base64 chars per chunk doc (Firestore limi
 const MAX_MEDIA = 6 * 1024 * 1024; // skip files bigger than this
 let running = false;
 const listeners = new Set();
-export const state = { enabled: false, user: null, status: 'off', lastSync: 0, error: null, pending: 0 };
+export const state = { enabled: false, user: null, status: 'off', lastSync: 0, error: null, pending: 0, reason: '' };
 
 function emit() { for (const l of listeners) l(state); }
 export function onChange(fn) { listeners.add(fn); return () => listeners.delete(fn); }
@@ -20,10 +20,18 @@ function setStatus(status, error = null) { state.status = status; state.error = 
 export const configured = () => !!(FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && typeof firebase !== 'undefined');
 
 export function init() {
-  if (!configured() || app) return configured();
-  app = firebase.initializeApp(FIREBASE_CONFIG);
-  auth = firebase.auth();
-  fs = firebase.firestore();
+  if (app) return true;
+  if (!FIREBASE_CONFIG || !FIREBASE_CONFIG.apiKey) { state.reason = 'no-config'; return false; }
+  if (typeof firebase === 'undefined') { state.reason = 'sdk-missing'; return false; }
+  try {
+    app = firebase.initializeApp(FIREBASE_CONFIG);
+    auth = firebase.auth();
+    fs = firebase.firestore();
+  } catch (e) {
+    state.reason = 'init-failed: ' + (e && e.message || e);
+    console.error('Firebase init failed', e);
+    return false;
+  }
   state.enabled = true;
   auth.onAuthStateChanged(async (user) => {
     state.user = user ? { uid: user.uid, email: user.email } : null;
