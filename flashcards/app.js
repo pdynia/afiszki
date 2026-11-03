@@ -110,7 +110,7 @@ function streak(reviews) {
 }
 
 // ---------------------------------------------------------------- deck list
-const DECK_COLORS = ['#5b86b8', '#c9743a', '#6f9e5c', '#b85b7a', '#7a6bb8', '#d49a2a', '#4f9a9a'];
+const DECK_COLORS = ['#4A6FA5', '#A35139', '#388E3C', '#B05A7A', '#6E63A8', '#D98F3A', '#3F8F8F'];
 function deckColor(name) {
   let h = 0;
   for (const ch of name) h = (h * 31 + ch.codePointAt(0)) >>> 0;
