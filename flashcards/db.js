@@ -33,11 +33,19 @@ export function open() {
         db.createObjectStore('dirty', { keyPath: ['store', 'key'] });
       }
     };
-    req.onsuccess = () => resolve(req.result);
+    req.onsuccess = () => {
+      const db = req.result;
+      // Another tab is upgrading the schema: let go so it isn't blocked, then reload.
+      db.onversionchange = () => { db.close(); dbPromise = null; location.reload(); };
+      resolve(db);
+    };
     req.onerror = () => reject(req.error);
+    req.onblocked = () => { if (typeof onBlocked === 'function') onBlocked(); };
   });
   return dbPromise;
 }
+let onBlocked = null;
+export function setBlockedHandler(fn) { onBlocked = fn; }
 
 function promisify(req) {
   return new Promise((resolve, reject) => {
