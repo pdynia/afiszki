@@ -7,7 +7,7 @@ import { HELP } from './help.js';
 import { clozeNumbers } from './render.js';
 import * as syncer from './sync.js';
 
-export const VERSION = '0.8.3';
+export const VERSION = '0.8.4';
 const $ = (id) => document.getElementById(id);
 const DAY = 86400000;
 
@@ -1189,6 +1189,11 @@ $('btn-notetypes').onclick = openNoteTypes;
 
 // ---------------------------------------------------------------- boot
 (async () => {
+  db.setBlockedHandler(() => {
+    const el = $('import-status');
+    el.className = 'status err';
+    el.textContent = t('db.blocked');
+  });
   await loadSettings();
   syncer.state.lastSync = await db.getMeta('sync:lastSync', 0);
   try { syncer.init(); } catch (e) { console.error('sync init failed', e); syncer.state.reason = 'init-threw: ' + (e && (e.message || e.code) || e); }
