@@ -6,7 +6,7 @@ import { t, setLang, detectLang, lang as currentLang } from './i18n.js';
 import { HELP } from './help.js';
 import { clozeNumbers } from './render.js';
 
-export const VERSION = '0.4.0';
+export const VERSION = '0.5.0';
 const $ = (id) => document.getElementById(id);
 const DAY = 86400000;
 
@@ -688,6 +688,9 @@ async function openSettings() {
   $('set-new-per-day').value = settings.newPerDay;
   $('set-rev-per-day').value = settings.revPerDay;
   $('set-steps').value = settings.learnSteps.join(', ');
+  $('set-algo').value = settings.algorithm || 'fsrs';
+  $('set-retention').value = Math.round((settings.retention || 0.9) * 100);
+  $('row-retention').classList.toggle('hidden', $('set-algo').value !== 'fsrs');
   $('set-theme').value = settings.theme;
   $('set-lang').value = settings.lang;
   $('settings-footer').textContent = t('set.footer', { v: VERSION });
@@ -703,6 +706,8 @@ $('btn-settings-save').onclick = async () => {
   settings.revPerDay = Math.max(0, Number($('set-rev-per-day').value) || 0);
   const steps = $('set-steps').value.split(/[,\s]+/).map(Number).filter(n => n > 0);
   settings.learnSteps = steps.length ? steps : [1, 10];
+  settings.algorithm = $('set-algo').value;
+  settings.retention = Math.min(0.97, Math.max(0.7, (Number($('set-retention').value) || 90) / 100));
   settings.theme = $('set-theme').value;
   settings.lang = $('set-lang').value;
   await db.setMeta('settings', settings);
@@ -711,6 +716,7 @@ $('btn-settings-save').onclick = async () => {
   toast(t('toast.saved'));
   showDecks();
 };
+$('set-algo').onchange = () => $('row-retention').classList.toggle('hidden', $('set-algo').value !== 'fsrs');
 $('set-lang').onchange = () => { settings.lang = $('set-lang').value; applyLang(); $('settings-footer').textContent = t('set.footer', { v: VERSION }); $('title').textContent = t('app.settings'); };
 $('btn-persist').onclick = async () => {
   const ok = navigator.storage?.persist ? await navigator.storage.persist() : false;

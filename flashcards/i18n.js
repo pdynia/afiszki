@@ -48,6 +48,8 @@ const STRINGS = {
     'br.title': 'Cards', 'br.search': 'Search cards…', 'br.count': '{n} card{s}', 'br.empty': 'No cards yet — add the first one.',
     'st.new': 'new', 'st.learn': 'learning', 'st.review': 'review',
     'ed.add_image': 'Add photo', 'ed.image_failed': 'Could not read that image',
+    'set.algorithm': 'Scheduling algorithm', 'set.retention': 'Desired retention (%)',
+    'set.algo_hint': 'FSRS is the modern algorithm used by Anki: it needs fewer reviews for the same memory. 90% retention is a good default; higher means more reviews.',
   },
   pl: {
     'app.decks': 'Talie', 'app.deck': 'Talia', 'app.settings': 'Ustawienia', 'app.help': 'Pomoc',
@@ -97,6 +99,8 @@ const STRINGS = {
     'br.title': 'Karty', 'br.search': 'Szukaj kart…', 'br.count': '{n} kart{s}', 'br.empty': 'Nie ma jeszcze kart — dodaj pierwszą.',
     'st.new': 'nowa', 'st.learn': 'w nauce', 'st.review': 'powtórka',
     'ed.add_image': 'Dodaj zdjęcie', 'ed.image_failed': 'Nie udało się wczytać zdjęcia',
+    'set.algorithm': 'Algorytm planowania', 'set.retention': 'Docelowa zapamiętywalność (%)',
+    'set.algo_hint': 'FSRS to nowoczesny algorytm używany przez Anki: potrzebuje mniej powtórek przy tym samym efekcie. 90% to dobra wartość domyślna; więcej = więcej powtórek.',
   },
 };
 

@@ -162,7 +162,12 @@
       </div>
       <div class="group">
         <div class="group-title" data-i18n="set.learning">Learning</div>
+        <label class="field"><span data-i18n="set.algorithm">Scheduling algorithm</span>
+          <select id="set-algo"><option value="fsrs">FSRS</option><option value="sm2">SM-2</option></select>
+        </label>
+        <label class="field" id="row-retention"><span data-i18n="set.retention">Desired retention (%)</span><input id="set-retention" type="number" inputmode="numeric" min="70" max="97"></label>
         <label class="field"><span data-i18n="set.steps">Learning steps (minutes)</span><input id="set-steps" type="text" placeholder="1, 10"></label>
+        <p class="muted small" data-i18n="set.algo_hint"></p>
       </div>
       <div class="group">
         <div class="group-title" data-i18n="set.appearance">Appearance</div>

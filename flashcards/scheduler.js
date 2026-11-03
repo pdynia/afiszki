@@ -1,4 +1,5 @@
-// SM-2 style scheduler modelled on Anki's classic (v2) scheduler.
+// Scheduler: FSRS-5 (default) or SM-2 (Anki's classic v2 scheduler).
+import * as fsrs from './fsrs.js';
 // Card fields used: state ('new'|'learn'|'review'|'relearn'), due (ms), ivl (days),
 // ease (permille, e.g. 2500), step (index into learning steps), reps, lapses.
 
@@ -15,6 +16,9 @@ export const DEFAULTS = {
   hardMult: 1.2,
   lapseMult: 0.5,
   maxIvl: 36500,
+  algorithm: 'fsrs',          // 'fsrs' | 'sm2'
+  retention: 0.9,             // FSRS desired retention
+  fsrsW: fsrs.DEFAULT_W,
 };
 
 const MIN = 60 * 1000;
@@ -31,6 +35,69 @@ function fuzz(days) {
 
 // Returns a new card object with scheduling applied. Pure: does not mutate.
 export function answer(card, grade, cfg = DEFAULTS, now = Date.now()) {
+  if ((cfg.algorithm || 'fsrs') === 'fsrs') return answerFsrs(card, grade, cfg, now);
+  return answerSm2(card, grade, cfg, now);
+}
+
+function answerFsrs(card, grade, cfg, now) {
+  const w = cfg.fsrsW && cfg.fsrsW.length === 19 ? cfg.fsrsW : fsrs.DEFAULT_W;
+  const retention = cfg.retention || 0.9;
+  const steps = cfg.learnSteps.length ? cfg.learnSteps : [1];
+  const relearn = cfg.relearnSteps.length ? cfg.relearnSteps : [10];
+  const c = { ...card, reps: (card.reps || 0) + 1, lastReview: now };
+  const elapsed = card.lastReview ? Math.max(0, (now - card.lastReview) / DAY) : 0;
+
+  // Cards that only have SM-2 data get an estimated FSRS state.
+  if (card.state !== 'new' && !(card.stability > 0)) {
+    const est = fsrs.fromSm2(card.ivl, card.ease);
+    c.stability = est.stability; c.difficulty = est.difficulty;
+  }
+
+  const graduate = () => {
+    c.state = 'review'; c.step = 0;
+    c.ivl = Math.min(cfg.maxIvl, Math.max(1, Math.round(fsrs.nextInterval(c.stability, retention))));
+    c.due = now + c.ivl * DAY;
+  };
+  const stepTo = (list, state, i) => { c.state = state; c.step = i; c.due = now + list[i] * MIN; };
+  const finish = () => { c.ease = fsrs.difficultyToEase(c.difficulty); return c; };
+
+  if (card.state === 'new') {
+    c.stability = fsrs.initStability(w, grade);
+    c.difficulty = fsrs.initDifficulty(w, grade);
+    if (grade === AGAIN) stepTo(steps, 'learn', 0);
+    else if (grade === HARD) { c.state = 'learn'; c.step = 0; c.due = now + steps[0] * 1.5 * MIN; }
+    else if (grade === GOOD) { if (steps.length > 1) stepTo(steps, 'learn', 1); else graduate(); }
+    else graduate();
+    return finish();
+  }
+
+  if (card.state === 'learn' || card.state === 'relearn') {
+    const list = card.state === 'learn' ? steps : relearn;
+    c.stability = fsrs.shortTermStability(w, c.stability, grade);
+    c.difficulty = fsrs.nextDifficulty(w, c.difficulty, grade);
+    const step = card.step || 0;
+    if (grade === AGAIN) stepTo(list, card.state, 0);
+    else if (grade === HARD) { c.due = now + (list[step] ?? list[0]) * 1.5 * MIN; }
+    else if (grade === GOOD) { if (step + 1 < list.length) stepTo(list, card.state, step + 1); else graduate(); }
+    else graduate();
+    return finish();
+  }
+
+  // review
+  const R = fsrs.retrievability(elapsed, c.stability);
+  c.difficulty = fsrs.nextDifficulty(w, c.difficulty, grade);
+  if (grade === AGAIN) {
+    c.lapses = (card.lapses || 0) + 1;
+    c.stability = fsrs.lapseStability(w, c.difficulty, c.stability, R);
+    stepTo(relearn, 'relearn', 0);
+    return finish();
+  }
+  c.stability = fsrs.recallStability(w, c.difficulty, c.stability, R, grade);
+  graduate();
+  return finish();
+}
+
+function answerSm2(card, grade, cfg, now) {
   const c = { ...card, reps: (card.reps || 0) + 1, lastReview: now };
   const steps = cfg.learnSteps.length ? cfg.learnSteps : [1];
   const relearn = cfg.relearnSteps.length ? cfg.relearnSteps : [10];
