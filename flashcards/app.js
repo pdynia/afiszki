@@ -6,7 +6,7 @@ import { t, setLang, detectLang, lang as currentLang } from './i18n.js';
 import { HELP } from './help.js';
 import { clozeNumbers } from './render.js';
 
-export const VERSION = '0.6.0';
+export const VERSION = '0.7.0';
 const $ = (id) => document.getElementById(id);
 const DAY = 86400000;
 
@@ -671,14 +671,63 @@ function parseField(html) {
   let rest = (html || '').replace(/<img[^>]*src="([^"]+)"[^>]*>/gi, (m, src) => { images.push(decodeURIComponent(src)); return ''; });
   rest = rest.replace(/\[sound:([^\]]+)\]/g, (m, n) => { audios.push(n); return ''; });
   const d = document.createElement('div');
-  d.innerHTML = rest.replace(/<br\s*\/?>/gi, '\n').replace(/<\/(div|p)>/gi, '\n');
-  return { text: (d.textContent || '').replace(/\n{3,}/g, '\n\n').trim(), images, audios };
+  d.innerHTML = rest.replace(/<br\s*\/?>/gi, '\n').replace(/<\/(div|p|li)>/gi, '\n');
+  const kept = rest.replace(/(<br\s*\/?>\s*)+$/i, '').trim();
+  return { text: (d.textContent || '').replace(/\n{3,}/g, '\n\n').trim(), html: kept, images, audios };
 }
-function buildField(text, images, audios = []) {
-  let html = escapeHtml(text.trim()).replace(/\n/g, '<br>');
-  for (const n of images) html += `<br><img src="${encodeURIComponent(n)}">`;
-  for (const n of audios) html += `[sound:${n}]`;
-  return html;
+// Keep formatting from the rich editor, drop anything executable.
+function sanitizeHtml(html) {
+  const d = document.createElement('div');
+  d.innerHTML = html;
+  for (const el of d.querySelectorAll('script, style, iframe, object, embed, link, meta')) el.remove();
+  for (const el of d.querySelectorAll('*')) for (const a of [...el.attributes]) {
+    if (/^on/i.test(a.name) || (a.name === 'href' && /^\s*javascript:/i.test(a.value))) el.removeAttribute(a.name);
+  }
+  return d.innerHTML.replace(/(<br\s*\/?>\s*)+$/i, '').replace(/^(<div><br><\/div>)+|(<div><br><\/div>)+$/g, '').trim();
+}
+function buildField(html, images, audios = []) {
+  let out = sanitizeHtml(html);
+  for (const n of images) out += `<br><img src="${encodeURIComponent(n)}">`;
+  for (const n of audios) out += `[sound:${n}]`;
+  return out;
+}
+const getField = (i) => $(`ed-f${i}`).innerHTML;
+const setField = (i, html) => { $(`ed-f${i}`).innerHTML = html || ''; };
+const fieldText = (i) => $(`ed-f${i}`).textContent || '';
+
+// Toolbar: execCommand on the field the toolbar belongs to.
+for (const tb of document.querySelectorAll('.toolbar')) {
+  const field = () => $(tb.dataset.for);
+  const run = (cmd, val = null) => { field().focus(); document.execCommand(cmd, false, val); };
+  for (const b of tb.querySelectorAll('button[data-cmd]')) { b.onmousedown = (e) => e.preventDefault(); b.onclick = () => run(b.dataset.cmd); }
+  tb.querySelector('[data-font]').onchange = (e) => { if (e.target.value) run('fontName', e.target.value); e.target.value = ''; };
+  tb.querySelector('[data-size]').onchange = (e) => { if (e.target.value) run('fontSize', e.target.value); e.target.value = ''; };
+  tb.querySelector('[data-color]').oninput = (e) => run('foreColor', e.target.value);
+  tb.querySelector('[data-hilite]').oninput = (e) => { run('hiliteColor', e.target.value); };
+  for (const sel of tb.querySelectorAll('select, input')) sel.onmousedown = (ev) => { ev.stopPropagation(); };
+  const cl = tb.querySelector('[data-cloze]');
+  cl.onmousedown = (e) => e.preventDefault();
+  cl.onclick = () => {
+    const f = field();
+    const sel = window.getSelection();
+    if (!sel.rangeCount || sel.isCollapsed || !f.contains(sel.anchorNode)) return toast(t('ed.select_first'));
+    const n = Math.max(0, ...clozeNumbers(f.textContent)) + 1;
+    const text = sel.toString();
+    run('insertText', `{{c${n}::${text}}}`);
+    if (editor && !editor.noteId && editor.kind !== 'cloze' && f.id === 'ed-f1') setEditorKind('cloze');
+  };
+}
+for (const f of document.querySelectorAll('.rte')) {
+  f.addEventListener('paste', (e) => {
+    // Paste as plain text so foreign styles do not leak in.
+    const txt = e.clipboardData?.getData('text/plain');
+    if (txt != null) { e.preventDefault(); document.execCommand('insertText', false, txt); }
+  });
+  f.addEventListener('keydown', (e) => {
+    if (!(e.metaKey || e.ctrlKey)) return;
+    const map = { b: 'bold', i: 'italic', u: 'underline' };
+    if (map[e.key]) { e.preventDefault(); document.execCommand(map[e.key]); }
+  });
 }
 const newGuid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 
@@ -778,6 +827,7 @@ for (const input of document.querySelectorAll('.ed-img-input')) input.onchange =
 
 function setEditorKind(kind) {
   editor.kind = kind;
+  $('ed-f1').dataset.placeholder = kind === 'cloze' ? '{{c1::…}}' : '';
   for (const b of document.querySelectorAll('#ed-type button')) b.classList.toggle('on', b.dataset.type === kind);
   $('ed-l1').textContent = t(kind === 'cloze' ? 'ed.text' : 'ed.front');
   $('ed-l2').textContent = t(kind === 'cloze' ? 'ed.extra' : 'ed.back');
@@ -788,7 +838,7 @@ for (const b of document.querySelectorAll('#ed-type button')) b.onclick = () => 
 async function openEditor({ deckId, noteId = null, back }) {
   editor = { deckId, noteId, kind: 'basic', images: { 1: [], 2: [] }, audios: { 1: [], 2: [] }, back };
   show('editor', t(noteId ? 'ed.title_edit' : 'ed.title'));
-  $('ed-f1').value = ''; $('ed-f2').value = ''; $('ed-tags').value = '';
+  setField(1, ''); setField(2, ''); $('ed-tags').value = '';
   $('btn-ed-delete').classList.toggle('hidden', !noteId);
   $('btn-ed-save-add').classList.toggle('hidden', !!noteId);
   $('ed-type').style.opacity = noteId ? '.5' : '';
@@ -797,7 +847,7 @@ async function openEditor({ deckId, noteId = null, back }) {
     const model = await db.get('models', note.modelId);
     editor.kind = modelKind(model);
     const f1 = parseField(note.fields[0]), f2 = parseField(note.fields[1] || '');
-    $('ed-f1').value = f1.text; $('ed-f2').value = f2.text;
+    setField(1, f1.html); setField(2, f2.html);
     editor.images = { 1: f1.images, 2: f2.images };
     editor.audios = { 1: f1.audios, 2: f2.audios };
     editor.modelId = note.modelId;
@@ -822,14 +872,14 @@ function editorReturn() {
 }
 
 async function saveEditor(addAnother) {
-  const text1 = $('ed-f1').value, text2 = $('ed-f2').value;
-  if (!text1.trim() && !editor.images[1].length) { toast(t('ed.empty')); return false; }
+  const text1 = fieldText(1), html1 = getField(1), html2 = getField(2);
+  if (!text1.trim() && !editor.images[1].length && !editor.audios[1].length) { toast(t('ed.empty')); return false; }
   if (editor.kind === 'cloze' && !clozeNumbers(text1).length) { toast(t('ed.no_cloze')); return false; }
   const tags = $('ed-tags').value.split(/[,\s]+/).map(x => x.trim()).filter(Boolean);
   const now = Date.now();
   let modelId = editor.modelId;
   if (!modelId) modelId = (await ensureModel(editor.kind)).id;
-  const fields = [buildField(text1, editor.images[1], editor.audios[1]), buildField(text2, editor.images[2], editor.audios[2]), ...(editor.extraFields || [])];
+  const fields = [buildField(html1, editor.images[1], editor.audios[1]), buildField(html2, editor.images[2], editor.audios[2]), ...(editor.extraFields || [])];
   const noteId = editor.noteId || newGuid();
   await db.put('notes', { id: noteId, deckId: editor.deckId, modelId, fields, tags, mod: now });
 
@@ -844,7 +894,7 @@ async function saveEditor(addAnother) {
   toast(t('toast.card_saved'));
   if (addAnother) {
     editor.noteId = null; editor.modelId = null; editor.extraFields = null; editor.images = { 1: [], 2: [] }; editor.audios = { 1: [], 2: [] };
-    $('ed-f1').value = ''; $('ed-f2').value = '';
+    setField(1, ''); setField(2, '');
     renderThumbs(1); renderThumbs(2); renderAudioChips(1); renderAudioChips(2);
     $('ed-f1').focus();
   } else editorReturn();
