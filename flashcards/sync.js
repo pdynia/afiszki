@@ -33,6 +33,7 @@ export function init() {
     return false;
   }
   state.enabled = true;
+  try {
   auth.onAuthStateChanged(async (user) => {
     state.user = user ? { uid: user.uid, email: user.email } : null;
     setStatus(user ? 'idle' : 'signed-out');
@@ -52,6 +53,7 @@ export function init() {
   }
   window.addEventListener('online', () => sync().catch(() => {}));
   setInterval(() => { if (navigator.onLine) sync().catch(() => {}); }, 5 * 60000);
+  } catch (e) { state.enabled = false; state.reason = 'auth-setup-failed: ' + (e && (e.message || e.code) || e); console.error(e); return false; }
   return true;
 }
 
