@@ -108,16 +108,24 @@ export function renderCard({ note, model, card, deckName, getBlob }) {
 const BASE_CSS = `
 :host { display:block; }
 .card { padding: 20px; min-height: 100%; font-family: arial, sans-serif; font-size: 20px; text-align: center; color: black; background: white; word-wrap: break-word; }
-.card.nightMode { color: #e6e9ee; background: #171b21; }
+.card.nightMode { color: #EEE9DF; background: transparent; }
 .card img { max-width: 100%; height: auto; }
-.cloze { font-weight: bold; color: #1f6feb; }
+.cloze { font-weight: bold; color: #A35139; }
 hr#answer { margin: 16px 0; border: 0; border-top: 1px solid rgba(128,128,128,.4); }
 audio { max-width: 100%; }
+`;
+// In night mode most shared decks hard-code dark text, so force readable colours.
+const NIGHT_CSS = `
+.card.nightMode, .card.nightMode :is(div, p, span:not(.cloze), b, i, u, em, strong, td, th, li, h1, h2, h3, h4, font, a) { color: #EEE9DF !important; }
+.card.nightMode { background: transparent !important; }
+.card.nightMode :is(div, p, span, td, table, section) { background-color: transparent !important; }
+.card.nightMode .cloze { color: #FFB162 !important; }
+.card.nightMode hr, .card.nightMode hr#answer { border-color: rgba(238,233,223,.25) !important; }
 `;
 
 // Mounts the given side into a host element using shadow DOM so deck CSS stays isolated.
 export function mount(host, html, css, { nightMode = false } = {}) {
   const root = host.shadowRoot || host.attachShadow({ mode: 'open' });
-  root.innerHTML = `<style>${BASE_CSS}\n${css}</style><div class="card${nightMode ? ' nightMode night_mode' : ''}">${html}</div>`;
+  root.innerHTML = `<style>${BASE_CSS}\n${css}\n${nightMode ? NIGHT_CSS : ''}</style><div class="card${nightMode ? ' nightMode night_mode' : ''}">${html}</div>`;
   host.scrollTop = 0;
 }

@@ -110,6 +110,12 @@ function streak(reviews) {
 }
 
 // ---------------------------------------------------------------- deck list
+const DECK_COLORS = ['#4A6FA5', '#A35139', '#388E3C', '#B05A7A', '#6E63A8', '#D98F3A', '#3F8F8F'];
+function deckColor(name) {
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.codePointAt(0)) >>> 0;
+  return DECK_COLORS[h % DECK_COLORS.length];
+}
 async function showDecks() {
   show('decks', t('app.decks'));
   const decks = (await db.getAll('decks')).sort((a, b) => a.name.localeCompare(b.name));
@@ -126,6 +132,7 @@ async function showDecks() {
     const b = document.createElement('button');
     b.className = 'deck';
     b.innerHTML = `
+      <span class="icon" style="background:${deckColor(d.name)}">${[...d.name.trim()][0]?.toUpperCase() || '?'}</span>
       <span class="name"></span>
       <svg class="chev"><use href="#i-chev"/></svg>
       <span class="meta">
@@ -329,7 +336,7 @@ async function showCard(card) {
   study.rendered = renderCard({ note, model, card, deckName: currentDeck.name, getBlob: (n) => mediaCache.get(n) || null });
   const host = $('card-host');
   host.classList.remove('answer');
-  mount(host, study.rendered.front, study.rendered.css, { nightMode: isDark() && /night_?mode/i.test(study.rendered.css) });
+  mount(host, study.rendered.front, study.rendered.css, { nightMode: isDark() });
   $('card-hint').textContent = t('study.tap');
   $('grade').classList.add('hidden');
   $('btn-show').classList.remove('hidden');
@@ -355,7 +362,7 @@ function showAnswer() {
   if (!study?.card || !$('grade').classList.contains('hidden')) return;
   const host = $('card-host');
   host.classList.add('answer');
-  mount(host, study.rendered.back, study.rendered.css, { nightMode: isDark() && /night_?mode/i.test(study.rendered.css) });
+  mount(host, study.rendered.back, study.rendered.css, { nightMode: isDark() });
   const iv = sched.previewIntervals(study.card, settings);
   for (const g of [1, 2, 3, 4]) $(`iv-${g}`).textContent = iv[g];
   $('card-hint').textContent = t('study.how_well');
