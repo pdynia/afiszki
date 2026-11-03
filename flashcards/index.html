@@ -12,6 +12,8 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon.svg">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -53,8 +55,10 @@
         </div>
       </div>
 
-      <div class="section-head"><h2 data-i18n="decks.title">Decks</h2><span class="muted" id="deck-summary"></span></div>
-      <div id="deck-list" class="deck-list"></div>
+      <div class="panel" id="deck-panel">
+        <div class="section-head"><h2><svg class="sh-ico"><use href="#i-cards"/></svg><span data-i18n="decks.title">Decks</span></h2><span class="muted" id="deck-summary"></span></div>
+        <div id="deck-list" class="deck-list"></div>
+      </div>
 
       <div id="empty-state" class="empty hidden">
         <div class="empty-art"><svg><use href="#i-cards"/></svg></div>
@@ -92,7 +96,7 @@
       </div>
 
       <div class="card-panel">
-        <div class="section-head"><h3 data-i18n="deck.last7">Last 7 days</h3><span class="muted" id="hist-total"></span></div>
+        <div class="section-head"><h3><svg class="sh-ico"><use href="#i-check"/></svg><span data-i18n="deck.last7">Last 7 days</span></h3><span class="muted" id="hist-total"></span></div>
         <div class="hist" id="hist"></div>
       </div>
 

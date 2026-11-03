@@ -110,6 +110,12 @@ function streak(reviews) {
 }
 
 // ---------------------------------------------------------------- deck list
+const DECK_COLORS = ['#5b86b8', '#c9743a', '#6f9e5c', '#b85b7a', '#7a6bb8', '#d49a2a', '#4f9a9a'];
+function deckColor(name) {
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.codePointAt(0)) >>> 0;
+  return DECK_COLORS[h % DECK_COLORS.length];
+}
 async function showDecks() {
   show('decks', t('app.decks'));
   const decks = (await db.getAll('decks')).sort((a, b) => a.name.localeCompare(b.name));
@@ -126,6 +132,7 @@ async function showDecks() {
     const b = document.createElement('button');
     b.className = 'deck';
     b.innerHTML = `
+      <span class="icon" style="background:${deckColor(d.name)}">${[...d.name.trim()][0]?.toUpperCase() || '?'}</span>
       <span class="name"></span>
       <svg class="chev"><use href="#i-chev"/></svg>
       <span class="meta">
