@@ -182,7 +182,8 @@ def render(sections):
             if not items:
                 continue
             cards = "\n".join(card(i) for i in items)
-            body.append(f'        <h3 class="group-title">{html.escape(sub)} <span>{len(items)}</span></h3>\n'
+            slug = re.sub(r"[^a-z0-9]+", "-", sub.lower()).strip("-")
+            body.append(f'        <h3 class="group-title" id="{slug}">{html.escape(sub)} <span>{len(items)}</span></h3>\n'
                         f'        <ul class="product-grid">\n{cards}\n        </ul>')
         body.append('      </div>\n    </section>')
     today = datetime.date.today().strftime("%B %Y")
