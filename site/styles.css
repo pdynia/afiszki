@@ -63,7 +63,7 @@ p { margin: 0 0 1em; }
 }
 .header-inner { display: flex; align-items: center; justify-content: space-between; height: 72px; gap: 16px; }
 .logo { display: flex; align-items: center; }
-.logo img { display: block; height: 46px; width: auto; }
+.logo img { display: block; height: 36px; width: auto; }
 .nav { display: flex; align-items: center; gap: 24px; font-size: 0.95rem; }
 .nav a { text-decoration: none; color: var(--ink-soft); transition: color 0.15s ease; }
 .nav a:hover, .nav a[aria-current="page"] { color: var(--brand); }
@@ -145,7 +145,7 @@ p { margin: 0 0 1em; }
 .contact .muted { color: rgba(245, 243, 238, 0.75); }
 .contact .btn-primary { background: var(--brand-ink); color: var(--brand); }
 .contact .btn-primary:hover { background: #ffffff; }
-.contact-logo { display: block; width: 220px; height: auto; margin-bottom: 32px; }
+.contact-logo { display: block; width: 300px; max-width: 100%; height: auto; margin-bottom: 36px; }
 .contact-list { margin: 0; display: grid; }
 .contact-list > div { padding: 18px 0; border-top: 1px solid rgba(245, 243, 238, 0.18); }
 .contact-list > div:last-child { border-bottom: 1px solid rgba(245, 243, 238, 0.18); }
@@ -213,7 +213,7 @@ p { margin: 0 0 1em; }
   body { font-size: 16px; }
   .nav a:not(.nav-cta) { display: none; }
   .nav a[href="products.html"] { display: inline; }
-  .logo img { height: 38px; }
+  .logo img { height: 30px; }
   .hero { padding: 64px 0 56px; }
   .section { padding: 64px 0; }
   .split, .two-col { grid-template-columns: 1fr; gap: 28px; }
