@@ -205,50 +205,56 @@
           <p class="eyebrow">Selected products</p>
           <h2 id="feat-title">A few from the shelf.</h2>
         </div>
-        <p class="muted">Scroll sideways to browse. Every product links to its full details on the products page.</p>
+        <div class="rail-side">
+          <p class="muted">Use the arrows or drag to browse. Each card opens its product group.</p>
+          <div class="rail-nav">
+            <button type="button" class="rail-btn" data-rail-prev aria-label="Previous products">&#8592;</button>
+            <button type="button" class="rail-btn" data-rail-next aria-label="Next products">&#8594;</button>
+          </div>
+        </div>
       </div>
-      <div class="rail-wrap">
+      <div class="rail-wrap" tabindex="0" aria-label="Selected products, use left and right arrow keys to scroll">
         <ul class="rail">
-          <li class="feat" style="--tile:#d9e6ee">
-            <img src="assets/products/tranol-visanto.png" alt="Tranol" width="400" height="400" loading="lazy">
+          <li class="feat" style="--tile:#d9e6ee"><a class="feat-link" href="products.html#omega-3-fatty-acids" draggable="false">
+            <img src="assets/products/tranol-visanto.png" alt="Tranol" width="400" height="400" loading="lazy" draggable="false">
             <span class="feat-name">Tranol</span>
             <span class="feat-meta">Omega-3 · 250 ml</span>
-          </li>
-          <li class="feat" style="--tile:#f1e3bd">
+          </a></li>
+          <li class="feat" style="--tile:#f1e3bd"><a class="feat-link" href="products.html#vitamins" draggable="false">
             <img src="assets/products/natural-vitamin-d3-from-lanloin-4000-iu-visanto.png" alt="Vitamin D3 4000 IU" width="400" height="400" loading="lazy">
             <span class="feat-name">Vitamin D3 4000 IU</span>
             <span class="feat-meta">Vitamins · 60 capsules</span>
-          </li>
-          <li class="feat" style="--tile:#d7e7dc">
+          </a></li>
+          <li class="feat" style="--tile:#d7e7dc"><a class="feat-link" href="products.html#vitamins" draggable="false">
             <img src="assets/products/k2-mk7-200mcg-natural-vitamin-visanto.png" alt="Vitamin K2 MK-7" width="400" height="400" loading="lazy">
             <span class="feat-name">Vitamin K2 MK-7</span>
             <span class="feat-meta">Vitamins · 200 mcg</span>
-          </li>
-          <li class="feat" style="--tile:#f3dcdf">
+          </a></li>
+          <li class="feat" style="--tile:#f3dcdf"><a class="feat-link" href="products.html#liposomal-formulas-coenzyme-q10" draggable="false">
             <img src="assets/products/liposomal-vitamin-c-with-rutin.png" alt="Liposomal Vitamin C" width="400" height="400" loading="lazy">
             <span class="feat-name">Liposomal Vitamin C</span>
             <span class="feat-meta">Liposomal · with rutin</span>
-          </li>
-          <li class="feat" style="--tile:#e3e1ef">
+          </a></li>
+          <li class="feat" style="--tile:#e3e1ef"><a class="feat-link" href="products.html#plant-extracts-freeze-dried-products" draggable="false">
             <img src="assets/products/colostrum-200mg-60-caps-bioactive-colostrum-bovinum.png" alt="Colostrum 200 mg" width="400" height="400" loading="lazy">
             <span class="feat-name">Colostrum 200 mg</span>
             <span class="feat-meta">Freeze-dried · 60 capsules</span>
-          </li>
-          <li class="feat" style="--tile:#eadccb">
+          </a></li>
+          <li class="feat" style="--tile:#eadccb"><a class="feat-link" href="products.html#medicinal-mushrooms" draggable="false">
             <img src="assets/products/supra1-reishi-150g.png" alt="Supra1 Reishi" width="400" height="400" loading="lazy">
             <span class="feat-name">Supra1 Reishi</span>
             <span class="feat-meta">Mushrooms · 150 g</span>
-          </li>
-          <li class="feat" style="--tile:#ecd9c8">
+          </a></li>
+          <li class="feat" style="--tile:#ecd9c8"><a class="feat-link" href="products.html#vitamins" draggable="false">
             <img src="assets/products/vitamin-b-complex-b-optima.png" alt="B-Optima" width="400" height="400" loading="lazy">
             <span class="feat-name">B-Optima</span>
             <span class="feat-meta">Vitamin B complex</span>
-          </li>
-          <li class="feat" style="--tile:#f0d6d0">
+          </a></li>
+          <li class="feat" style="--tile:#f0d6d0"><a class="feat-link" href="products.html#liposomal-formulas-coenzyme-q10" draggable="false">
             <img src="assets/products/ubiquinol-unique-form-of-coenzyme-q10-visanto.png" alt="Ubiquinol 100 mg" width="400" height="400" loading="lazy">
             <span class="feat-name">Ubiquinol 100 mg</span>
             <span class="feat-meta">Coenzyme Q10</span>
-          </li>
+          </a></li>
         </ul>
       </div>
     </section>
@@ -337,6 +343,57 @@
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Featured rail: arrow buttons, mouse drag, keyboard arrows. Touch keeps native scrolling.
+    (function () {
+      var rail = document.querySelector('.rail-wrap');
+      if (!rail) return;
+      var prev = document.querySelector('[data-rail-prev]'), next = document.querySelector('[data-rail-next]');
+      var card = rail.querySelector('.feat');
+      function step() { return card ? (card.offsetWidth + 16) * 2 : rail.clientWidth * 0.8; }
+      function update() {
+        var max = rail.scrollWidth - rail.clientWidth - 1;
+        prev.disabled = rail.scrollLeft <= 0;
+        next.disabled = rail.scrollLeft >= max;
+      }
+      prev.addEventListener('click', function () { rail.scrollBy({ left: -step(), behavior: 'smooth' }); });
+      next.addEventListener('click', function () { rail.scrollBy({ left: step(), behavior: 'smooth' }); });
+      rail.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update);
+      update();
+
+      rail.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight') { rail.scrollBy({ left: step(), behavior: 'smooth' }); e.preventDefault(); }
+        if (e.key === 'ArrowLeft') { rail.scrollBy({ left: -step(), behavior: 'smooth' }); e.preventDefault(); }
+      });
+
+      // Drag to scroll with the mouse. A drag longer than a few pixels swallows the click so links don't fire.
+      var startX = 0, startLeft = 0, dragging = false, moved = false;
+      rail.addEventListener('pointerdown', function (e) {
+        if (e.pointerType !== 'mouse' || e.button !== 0) return;
+        dragging = true; moved = false; startX = e.clientX; startLeft = rail.scrollLeft;
+      });
+      window.addEventListener('pointermove', function (e) {
+        if (!dragging) return;
+        var dx = e.clientX - startX;
+        if (!moved && Math.abs(dx) > 4) {
+          // Only now is it a drag: a plain click must still reach the card's link.
+          moved = true;
+          rail.classList.add('dragging');
+          rail.style.scrollSnapType = 'none';
+        }
+        if (moved) rail.scrollLeft = startLeft - dx;
+      });
+      function stop() {
+        if (!dragging) return;
+        dragging = false;
+        rail.classList.remove('dragging');
+        rail.style.scrollSnapType = '';
+      }
+      window.addEventListener('pointerup', stop);
+      window.addEventListener('pointercancel', stop);
+      rail.addEventListener('click', function (e) { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+    })();
     // Fade sections in as they scroll into view. Without JS, or with reduced motion, everything is simply visible.
     if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
       document.documentElement.classList.add('js-reveal');

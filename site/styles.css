@@ -429,3 +429,26 @@ h2 { font-size: clamp(1.9rem, 3.6vw, 2.9rem); letter-spacing: -0.02em; line-heig
   .spec > div { grid-template-columns: 1fr; gap: 2px; }
   .feat { width: 200px; }
 }
+
+/* Featured rail controls */
+.rail-side { display: grid; gap: 16px; justify-items: start; }
+.rail-side p { margin: 0; }
+.rail-nav { display: flex; gap: 8px; }
+.rail-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid var(--brand); background: transparent; color: var(--brand);
+  font: inherit; font-size: 1.1rem; cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+.rail-btn:hover:not(:disabled) { background: var(--brand); color: var(--brand-ink); }
+.rail-btn:disabled { opacity: 0.3; cursor: default; }
+.rail-btn:focus-visible, .rail-wrap:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+.rail-wrap { cursor: grab; user-select: none; -webkit-user-select: none; }
+.rail-wrap.dragging { cursor: grabbing; scroll-behavior: auto; }
+.rail-wrap.dragging .feat { pointer-events: none; }
+.feat-link { display: grid; color: inherit; text-decoration: none; -webkit-user-drag: none; }
+.feat-link img { -webkit-user-drag: none; }
+@media (max-width: 760px) {
+  .rail-side { justify-items: start; }
+  .rail-btn { width: 40px; height: 40px; }
+}
