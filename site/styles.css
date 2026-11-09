@@ -354,3 +354,79 @@ p { margin: 0 0 1em; }
   .tile::after { right: 14px; bottom: 16px; }
   .range-more .btn { margin-left: 0; }
 }
+
+/* Editorial typography: larger, tighter headlines */
+h1 { font-size: clamp(2.4rem, 5.6vw, 4.4rem); letter-spacing: -0.025em; line-height: 1.05; }
+h2 { font-size: clamp(1.9rem, 3.6vw, 2.9rem); letter-spacing: -0.02em; line-height: 1.1; }
+.hero .lead { font-size: 1.25rem; }
+.hero-copy { padding-block: 16px 32px; }
+
+/* Ticker: key facts scrolling under the hero, separated by the PDIR mark */
+.ticker { background: var(--brand); color: var(--gold); border-top: 1px solid rgba(245, 243, 238, 0.14); overflow: hidden; }
+.ticker-track { display: flex; width: max-content; animation: ticker 48s linear infinite; }
+.ticker-row { display: flex; align-items: center; gap: 28px; padding: 14px 14px 14px 0; white-space: nowrap; }
+.ticker-row span { font-size: 0.72rem; letter-spacing: 0.26em; text-transform: uppercase; color: rgba(245, 243, 238, 0.85); }
+.tick-mark { width: 18px; height: 18px; flex: none; color: var(--gold); }
+@keyframes ticker { to { transform: translateX(-50%); } }
+.ticker:hover .ticker-track { animation-play-state: paused; }
+
+/* Spotlight: one product, large, with its facts, on its category colour */
+.spotlight { padding: 96px 0; background: var(--tint); }
+.spot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.spot-figure { margin: 0; position: relative; border-radius: 28px; background: var(--tile); aspect-ratio: 1; display: grid; place-items: center; overflow: hidden; }
+.spot-figure::before { content: ""; position: absolute; width: 72%; aspect-ratio: 1; border-radius: 50%; border: 1.5px solid rgba(36, 57, 24, 0.22); }
+.spot-figure::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1.5px; background: rgba(36, 57, 24, 0.22); }
+.spot-figure img { position: relative; z-index: 1; width: 58%; height: auto; filter: drop-shadow(0 28px 24px rgba(36, 57, 24, 0.22)); }
+.spot-figure figcaption { position: absolute; z-index: 1; left: 24px; top: 20px; font-size: 0.68rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--brand); }
+.spot-copy .lead { font-size: 1.1rem; }
+.spec { margin: 28px 0 32px; border-top: 1px solid var(--line); }
+.spec > div { display: grid; grid-template-columns: 140px 1fr; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+.spec dt { font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-soft); padding-top: 3px; }
+.spec dd { margin: 0; color: var(--ink); }
+
+/* Featured rail: horizontal scroll, one colour per product */
+.featured { padding: 96px 0 88px; overflow: hidden; }
+.featured-head { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: end; margin-bottom: 36px; }
+.featured-head p.muted { margin: 0; }
+.rail-wrap {
+  overflow-x: auto; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; padding-bottom: 8px;
+  scroll-padding-inline: max(20px, calc((100% - var(--wrap)) / 2 + 20px));
+}
+.rail-wrap::-webkit-scrollbar { display: none; }
+.rail {
+  list-style: none; margin: 0; display: flex; gap: 16px;
+  padding: 0 max(20px, calc((100% - var(--wrap)) / 2 + 20px));
+  width: max-content;
+}
+.feat {
+  scroll-snap-align: start; width: 240px; flex: none;
+  display: grid; padding: 22px 20px 20px; border-radius: 20px; background: var(--tile);
+  transition: transform 0.25s ease;
+}
+.feat:hover { transform: translateY(-4px); }
+.feat img { width: 70%; height: auto; aspect-ratio: 1; object-fit: contain; justify-self: center; margin-bottom: 14px; filter: drop-shadow(0 16px 14px rgba(36, 57, 24, 0.18)); }
+.feat-name { font-size: 1.05rem; color: var(--brand); }
+.feat-meta { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); margin-top: 4px; }
+
+/* Scroll reveal (only when the script enables it) */
+.js-reveal .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.js-reveal .reveal.in { opacity: 1; transform: none; }
+.js-reveal .steps .reveal:nth-child(2), .js-reveal .tiles .reveal:nth-child(2), .js-reveal .tiles .reveal:nth-child(5) { transition-delay: 0.1s; }
+.js-reveal .steps .reveal:nth-child(3), .js-reveal .tiles .reveal:nth-child(3), .js-reveal .tiles .reveal:nth-child(6) { transition-delay: 0.2s; }
+.js-reveal .steps .reveal:nth-child(4) { transition-delay: 0.3s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track { animation: none; }
+  .feat { transition: none; }
+}
+@media (max-width: 960px) {
+  .spot-grid { gap: 40px; }
+}
+@media (max-width: 760px) {
+  .spotlight, .featured { padding: 64px 0; }
+  .spot-grid, .featured-head { grid-template-columns: 1fr; gap: 28px; }
+  .spot-figure { max-width: 420px; margin: 0 auto; width: 100%; }
+  .spec > div { grid-template-columns: 1fr; gap: 2px; }
+  .feat { width: 200px; }
+}
