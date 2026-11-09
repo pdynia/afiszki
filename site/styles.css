@@ -237,3 +237,69 @@ p { margin: 0 0 1em; }
   .steps { grid-template-columns: 1fr; }
   .logo-micro { display: none; }
 }
+
+/* Graphics: hero product composition inside the PDIR circle-and-line mark */
+.hero { position: relative; overflow: hidden; }
+.hero-inner { position: relative; z-index: 1; }
+.hero-visual-wrap { position: absolute; inset: 0; pointer-events: none; display: flex; align-items: center; justify-content: flex-end; }
+.hero-visual { position: relative; width: min(46%, 480px); aspect-ratio: 1; margin-right: -10px; }
+.hero-mark { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--brand); opacity: 0.85; overflow: visible; }
+.hp { position: absolute; height: auto; filter: drop-shadow(0 18px 18px rgba(36, 57, 24, 0.16)); }
+.hp-1 { width: 44%; left: 4%;  top: 18%; }
+.hp-2 { width: 46%; left: 24%; top: 30%; z-index: 2; }
+.hp-3 { width: 42%; left: 52%; top: 26%; z-index: 1; }
+.hp-4 { width: 34%; left: 64%; top: 44%; z-index: 3; }
+.hp-5 { width: 30%; left: 12%; top: 50%; z-index: 3; }
+.hero h1, .hero .lead { max-width: min(18ch, 52%); }
+.hero .lead { max-width: min(60ch, 50%); }
+
+/* Route band: Europe -> Dubai -> MENA, drawn like the logo's line and circle */
+.route-band { padding: 8px 0 72px; }
+.route {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  position: relative;
+}
+.route::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 28px;
+  height: 2px; background: var(--brand);
+}
+.route-node { position: relative; display: grid; justify-items: center; text-align: center; gap: 4px; }
+.route-node:first-child { justify-items: start; text-align: left; }
+.route-node:last-child { justify-items: end; text-align: right; }
+.route-dot {
+  width: 22px; height: 22px; margin: 17px 0 14px;
+  border: 2px solid var(--brand); border-radius: 50%; background: var(--bg);
+}
+.route-hub .route-dot { width: 56px; height: 56px; margin: 0 0 10px; border-width: 2.5px; background: transparent; }
+.route-node strong { font-weight: 300; font-size: 1.6rem; color: var(--brand); line-height: 1.1; }
+.route-node small { font-size: 0.68rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ink-soft); }
+
+/* Step icons */
+.step-icon { display: block; width: 44px; height: 44px; margin-bottom: 16px; color: var(--brand); }
+.step-icon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+.step-icon .fill { fill: currentColor; stroke: none; }
+.steps .step-num { margin-bottom: 10px; }
+
+/* Product shelf in the range section */
+.shelf {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 8px;
+  margin-top: 32px; padding: 20px 16px 12px;
+  border-bottom: 2px solid var(--brand);
+  max-width: 420px;
+}
+.shelf img { width: 100%; height: auto; filter: drop-shadow(0 10px 10px rgba(36, 57, 24, 0.12)); }
+
+@media (max-width: 960px) {
+  .hero-visual { width: 44%; margin-right: -40px; opacity: 0.9; }
+}
+@media (max-width: 760px) {
+  .hero { padding-bottom: 24px; }
+  .hero-visual-wrap { position: relative; inset: auto; justify-content: center; margin-top: 8px; }
+  .hero-visual { width: min(88%, 360px); margin: 0; }
+  .hero h1, .hero .lead { max-width: none; }
+  .route::before { top: 28px; }
+  .route-node strong { font-size: 1.25rem; }
+  .route-node small { font-size: 0.6rem; letter-spacing: 0.16em; }
+  .shelf { max-width: none; }
+}
