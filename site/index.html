@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <a class="skip" href="#top">Skip to content</a>
   <!--
     EDIT ME: email, phone and address appear in this file.
     Search for "EDIT" to find every placeholder.
@@ -23,7 +24,10 @@
         <img src="assets/pdir-mark.svg" alt="PDIR" width="149" height="36">
         <span class="logo-micro"><span>General Trading LLC</span><span>Dubai &middot; UAE</span></span>
       </a>
-      <nav class="nav" aria-label="Main">
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
+        <span class="menu-bars" aria-hidden="true"></span>Menu
+      </button>
+      <nav class="nav" id="site-nav" aria-label="Main">
         <a href="#about">About</a>
         <a href="#services">What we do</a>
         <a href="products.html">Products</a>
@@ -71,16 +75,6 @@
         <div class="ticker-row"><span>Made in the EU</span><svg class="tick-mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M0 12h24" stroke="currentColor" stroke-width="1.6"/></svg><span>Stocked in Dubai</span><svg class="tick-mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M0 12h24" stroke="currentColor" stroke-width="1.6"/></svg><span>155 products</span><svg class="tick-mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M0 12h24" stroke="currentColor" stroke-width="1.6"/></svg><span>12 markets</span><svg class="tick-mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M0 12h24" stroke="currentColor" stroke-width="1.6"/></svg><span>Pharmacies</span><svg class="tick-mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M0 12h24" stroke="currentColor" stroke-width="1.6"/></svg><span>Retailers</span><svg class="tick-mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M0 12h24" stroke="currentColor" stroke-width="1.6"/></svg><span>Distributors</span><svg class="tick-mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M0 12h24" stroke="currentColor" stroke-width="1.6"/></svg><span>Full documentation</span><svg class="tick-mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M0 12h24" stroke="currentColor" stroke-width="1.6"/></svg></div>
       </div>
     </div>
-
-    <section class="route-band" aria-label="How products reach you">
-      <div class="wrap">
-        <ol class="route">
-          <li class="route-node"><span class="route-dot"></span><strong>Europe</strong><small>EU manufacturers</small></li>
-          <li class="route-node route-hub"><span class="route-dot"></span><strong>Dubai</strong><small>Our warehouse</small></li>
-          <li class="route-node"><span class="route-dot"></span><strong>MENA</strong><small>12 markets</small></li>
-        </ol>
-      </div>
-    </section>
 
     <section id="about" class="reveal section">
       <div class="wrap split">
@@ -301,48 +295,127 @@
     </section>
 
     <section id="contact" class="section contact">
-      <div class="wrap split">
+      <div class="wrap split contact-grid">
         <div>
           <img class="contact-logo" src="assets/pdir-logo-light.svg" alt="" width="300" height="86">
           <h2>Let's talk.</h2>
-          <p class="muted">Send us an email with your enquiry, whether you're a manufacturer, brand owner or buyer, and we'll get back to you within one business day.</p>
-          <a class="btn btn-primary" href="mailto:info@pdir.ae">Email us</a><!-- EDIT: email -->
+          <p class="muted">Whether you're a buyer in the region or a European brand looking for a distributor, send us a few details and we'll get back to you within one business day.</p>
+          <dl class="contact-list">
+            <div>
+              <dt>Email</dt>
+              <dd><a href="mailto:info@pdir.ae">info@pdir.ae</a></dd><!-- EDIT: email -->
+            </div>
+            <div>
+              <dt>Phone</dt>
+              <dd><a href="tel:+97142431476">+971 4 243 1476</a></dd>
+            </div>
+            <div>
+              <dt>WhatsApp</dt>
+              <dd><a class="wa-link" href="https://wa.me/97142431476?text=Hello%20PDIR%2C%20I%27d%20like%20to%20ask%20about%20your%20products." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 12 12 0 0 0 4.6 4c.6.3 1.1.4 1.5.5a3.7 3.7 0 0 0 1.7.1c.5-.1 1.5-.6 1.7-1.2s.2-1.1.2-1.2-.3-.2-.5-.3Z"/></svg>Chat on WhatsApp</a></dd><!-- EDIT: WhatsApp number -->
+            </div>
+            <div>
+              <dt>Office</dt>
+              <dd>
+                Madina Mall, 1st floor<br>
+                Muhaisnah 4<br>
+                Dubai, United Arab Emirates
+              </dd>
+            </div>
+          </dl>
         </div>
-        <dl class="contact-list">
-          <div>
-            <dt>Email</dt>
-            <dd><a href="mailto:info@pdir.ae">info@pdir.ae</a></dd><!-- EDIT: email -->
+        <form class="enquiry" id="enquiry" novalidate data-endpoint=""><!-- EDIT: set data-endpoint to a Formspree/Netlify URL to receive submissions server-side; empty = opens an email -->
+          <h3>Send an enquiry</h3>
+          <div class="field-row">
+            <label>Company<input type="text" name="company" id="f-company" autocomplete="organization" required></label>
+            <label>Email<input type="email" name="email" id="f-email" autocomplete="email" required></label>
           </div>
-          <div>
-            <dt>Phone</dt>
-            <dd><a href="tel:+97142431476">+971 4 243 1476</a></dd>
+          <div class="field-row">
+            <label>Country<input type="text" name="country" id="f-country" autocomplete="country-name" required></label>
+            <label>I am a
+              <select name="role" id="f-role" required>
+                <option value="" disabled selected>Select</option>
+                <option>Pharmacy or retailer</option>
+                <option>Distributor or wholesaler</option>
+                <option>Manufacturer or brand owner</option>
+                <option>Other</option>
+              </select>
+            </label>
           </div>
-          <div>
-            <dt>Office</dt>
-            <dd>
-              Madina Mall, 1st floor<br>
-              Muhaisnah 4<br>
-              Dubai, United Arab Emirates
-            </dd>
+          <label>Message<textarea name="message" id="f-message" rows="4" placeholder="Which products or markets are you interested in?"></textarea></label>
+          <input type="hidden" name="product" id="f-product">
+          <p class="form-error" id="f-error" hidden>Please fill in company, email, country and your role.</p>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-light">Send enquiry</button>
+            <span class="form-note" id="f-note">Sent by email to info@pdir.ae</span>
           </div>
-          <div>
-            <dt>Website</dt>
-            <dd><a href="https://www.pdir.ae">www.pdir.ae</a></dd>
-          </div>
-        </dl>
+          <p class="form-ok" id="f-ok" hidden>Thank you. Your enquiry is ready in your email app; press send and we'll reply within one business day.</p>
+        </form>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <div class="wrap footer-inner">
-      <p>&copy; <span id="year">2026</span> PDIR General Trading LLC. All rights reserved.</p>
-      <p class="muted">Trade licence no. 969545 &middot; Dubai, UAE</p>
+    <div class="wrap">
+      <nav class="footer-nav" aria-label="Footer">
+        <a href="#about">About</a>
+        <a href="#services">What we do</a>
+        <a href="products.html">Products</a>
+        <a href="#markets">Markets</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="footer-inner">
+        <p>&copy; <span id="year">2026</span> PDIR General Trading LLC. All rights reserved.</p>
+        <p class="muted">Trade licence no. 969545 &middot; Dubai, UAE</p>
+      </div>
     </div>
   </footer>
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Mobile menu
+    (function () {
+      var btn = document.querySelector('.menu-btn'), header = document.querySelector('.site-header');
+      if (!btn) return;
+      function set(open) { header.classList.toggle('nav-open', open); btn.setAttribute('aria-expanded', open); btn.lastChild.textContent = open ? 'Close' : 'Menu'; }
+      btn.addEventListener('click', function () { set(!header.classList.contains('nav-open')); });
+      document.querySelectorAll('#site-nav a').forEach(function (a) { a.addEventListener('click', function () { set(false); }); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') set(false); });
+    })();
+
+    // Enquiry form: posts to data-endpoint when one is configured, otherwise opens a pre-filled email.
+    (function () {
+      var form = document.getElementById('enquiry');
+      if (!form) return;
+      var product = new URLSearchParams(location.search).get('product');
+      if (product) {
+        document.getElementById('f-product').value = product;
+        document.getElementById('f-message').value = 'Please send me a trade price and availability for: ' + product;
+        var inv = document.getElementById('f-role'); inv.value = 'Pharmacy or retailer';
+      }
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var err = document.getElementById('f-error'), ok = document.getElementById('f-ok');
+        var required = ['f-company', 'f-email', 'f-country', 'f-role'].map(function (id) { return document.getElementById(id); });
+        var bad = required.filter(function (el) { return !el.value || (el.type === 'email' && !el.checkValidity()); });
+        required.forEach(function (el) { el.classList.toggle('invalid', bad.indexOf(el) !== -1); });
+        err.hidden = bad.length === 0;
+        if (bad.length) { bad[0].focus(); return; }
+        var data = new FormData(form);
+        var endpoint = form.getAttribute('data-endpoint');
+        if (endpoint) {
+          fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } })
+            .then(function (r) { if (!r.ok) throw new Error(); ok.textContent = 'Thank you. We have received your enquiry and will reply within one business day.'; ok.hidden = false; form.reset(); })
+            .catch(function () { err.textContent = 'Sending failed. Please email us at info@pdir.ae.'; err.hidden = false; });
+          return;
+        }
+        var lines = ['Company: ' + data.get('company'), 'Email: ' + data.get('email'), 'Country: ' + data.get('country'), 'Role: ' + data.get('role')];
+        if (data.get('product')) lines.push('Product: ' + data.get('product'));
+        lines.push('', data.get('message') || '');
+        location.href = 'mailto:info@pdir.ae?subject=' + encodeURIComponent('Enquiry from ' + data.get('company')) + '&body=' + encodeURIComponent(lines.join('\n'));
+        ok.hidden = false;
+      });
+    })();
 
     // Featured rail: arrow buttons, mouse drag, keyboard arrows. Touch keeps native scrolling.
     (function () {
