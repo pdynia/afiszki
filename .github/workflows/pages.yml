@@ -1,9 +1,12 @@
-name: Deploy flashcards app to GitHub Pages
+# Publishes both static sites in this repository to GitHub Pages as one site:
+#   flashcards/  ->  /            (unchanged location, keeps the installed PWA working)
+#   site/        ->  /pdir/       (PDIR General Trading website)
+name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
-    paths: ['flashcards/**', '.github/workflows/pages.yml']
+    paths: ['flashcards/**', 'site/**', '.github/workflows/pages.yml']
   workflow_dispatch:
 
 permissions:
@@ -23,9 +26,17 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Assemble the site
+        run: |
+          mkdir -p _site/pdir
+          cp -r flashcards/. _site/
+          cp -r site/. _site/pdir/
+          touch _site/.nojekyll
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: flashcards
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
