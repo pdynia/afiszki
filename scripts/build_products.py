@@ -20,6 +20,7 @@ import urllib.request
 STORE = "https://visanto.com"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "site", "products.html")
+INDEX = os.path.join(ROOT, "site", "index.html")
 IMG_DIR = os.path.join(ROOT, "site", "assets", "products")
 
 # Supplement sub-categories, in display order: (title, store collections that map to it).
@@ -185,8 +186,7 @@ def render(sections):
             if not items:
                 continue
             cards = "\n".join(card(i) for i in items)
-            slug = re.sub(r"[^a-z0-9]+", "-", sub.lower()).strip("-")
-            body.append(f'        <h3 class="group-title" id="{slug}">{html.escape(sub)} <span>{len(items)}</span></h3>\n'
+            body.append(f'        <h3 class="group-title" id="{slug(sub)}">{html.escape(sub)} <span>{len(items)}</span></h3>\n'
                         f'        <ul class="product-grid">\n{cards}\n        </ul>')
         body.append('      </div>\n    </section>')
     today = datetime.date.today().strftime("%B %Y")
@@ -284,6 +284,34 @@ TEMPLATE = """<!doctype html>
 """
 
 
+def slug(title):
+    return re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+
+
+def update_counts(sections):
+    """Refresh every <span data-count="key"> on the home page so its numbers follow the catalogue."""
+    counts = {key: sum(len(v) for v in groups.values()) for key, groups in sections.items()}
+    counts["total"] = sum(counts.values())
+    for groups in sections.values():
+        for title, items in groups.items():
+            counts[slug(title)] = len(items)
+    with open(INDEX) as f:
+        page = f.read()
+    missing = set()
+
+    def swap(m):
+        key = m.group(2)
+        if key not in counts:
+            missing.add(key)
+            return m.group(0)
+        return f"{m.group(1)}{counts[key]}{m.group(3)}"
+
+    page, n = re.subn(r'(<span data-count="([^"]+)">)[^<]*(</span>)', swap, page)
+    with open(INDEX, "w") as f:
+        f.write(page)
+    print(f"updated {n} counts in {os.path.relpath(INDEX, ROOT)}" + (f"; unknown keys: {sorted(missing)}" if missing else ""))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--source", help="directory with saved products.json and col_<handle>.json files")
@@ -291,6 +319,7 @@ def main():
     sections = classify(*load(args.source))
     with open(OUT, "w") as f:
         f.write(render(sections))
+    update_counts(sections)
     for key, groups in sections.items():
         print(key, {k: len(v) for k, v in groups.items() if v})
     print("wrote", os.path.relpath(OUT, ROOT))
