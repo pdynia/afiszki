@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#EEE9DF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1B2632" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Cards">
+  <title>Cards – spaced repetition</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <svg hidden aria-hidden="true">
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="19" cy="12" r="2" fill="currentColor"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-import" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4-4m4 4 4-4M4 17v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9h10a6 6 0 0 1 0 12h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cards" viewBox="0 0 24 24"><rect x="3" y="7" width="14" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 4h11a2 2 0 0 1 2 2v9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m13.5 8.5 3 3" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 11v6M14 11v6M6 7l1 12h10l1-12M9 7V4h6v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8.5" cy="10" r="1.6" fill="currentColor"/><path d="m4 18 5-5 3 3 3-3 5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-audio" viewBox="0 0 24 24"><path d="M4 10v4h3l4 4V6L7 10H4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15 9a4 4 0 0 1 0 6M17.5 6.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4h10l-1.5 3.5L16 11H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-stats" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-sync" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-14.2 5M4 12a8 8 0 0 1 14.2-5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M18 3v4h-4M6 21v-4h4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5v.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></symbol>
+  </svg>
+
+  <header class="topbar">
+    <button id="btn-back" class="icon-btn hidden" aria-label="Back"><svg><use href="#i-back"/></svg></button>
+    <h1 id="title">Decks</h1>
+    <div class="spacer"></div>
+    <button id="btn-undo" class="icon-btn hidden" aria-label="Undo last answer" disabled><svg><use href="#i-undo"/></svg></button>
+    <button id="btn-edit-card" class="icon-btn hidden" aria-label="Edit card" data-i18n-label="btn.edit"><svg><use href="#i-edit"/></svg></button>
+    <button id="btn-study-more" class="icon-btn hidden" aria-label="More"><svg><use href="#i-more"/></svg></button>
+    <button id="btn-sync" class="icon-btn hidden" aria-label="Sync" title=""><svg><use href="#i-sync"/></svg></button>
+    <button id="btn-help" class="icon-btn" aria-label="Help" data-i18n-label="app.help"><svg><use href="#i-help"/></svg></button>
+    <button id="btn-more" class="icon-btn hidden" aria-label="More"><svg><use href="#i-more"/></svg></button>
+    <button id="btn-settings" class="icon-btn" aria-label="Settings" data-i18n-label="app.settings"><svg><use href="#i-gear"/></svg></button>
+  </header>
+  <div id="study-progress" class="progress hidden"><div id="study-progress-bar"></div></div>
+
+  <main id="main">
+    <!-- Deck list -->
+    <section id="view-decks" class="view">
+      <div class="hero" id="hero">
+        <div class="hero-main">
+          <div class="hero-label" data-i18n="hero.due">Due today</div>
+          <div class="hero-number" id="hero-due">0</div>
+          <div class="hero-sub" id="hero-sub"></div>
+        </div>
+        <div class="hero-side">
+          <div><strong id="hero-done">0</strong><span data-i18n="hero.reviewed">reviewed today</span></div>
+          <div><strong id="hero-streak">0</strong><span data-i18n="hero.streak">day streak</span></div>
+        </div>
+      </div>
+
+      <div class="panel" id="deck-panel">
+        <div class="section-head"><h2><svg class="sh-ico"><use href="#i-cards"/></svg><span data-i18n="decks.title">Decks</span></h2><span class="muted" id="deck-summary"></span></div>
+        <div id="deck-list" class="deck-list"></div>
+      </div>
+
+      <div id="empty-state" class="empty hidden">
+        <div class="empty-art"><svg><use href="#i-cards"/></svg></div>
+        <h3 data-i18n="empty.title">No decks yet</h3>
+        <p class="muted" data-i18n-html="empty.text"></p>
+        <button class="btn link" id="btn-empty-help" data-i18n="empty.help">How do I get a deck from Anki?</button>
+      </div>
+
+      <div class="row">
+        <button id="btn-new-deck" class="btn" data-i18n="btn.new_deck">New deck</button>
+      </div>
+      <label class="btn primary big fab" id="btn-import-label">
+        <svg class="ico"><use href="#i-import"/></svg> <span data-i18n="btn.import">Import deck (.apkg)</span>
+        <input id="file-apkg" type="file" accept=".apkg,.zip,application/zip,application/octet-stream" hidden>
+      </label>
+      <input id="file-backup" type="file" accept=".zip,application/zip" hidden>
+      <p id="import-status" class="status hidden" aria-live="polite"></p>
+    </section>
+
+    <!-- Deck overview -->
+    <section id="view-deck" class="view hidden">
+      <div class="card-panel">
+        <h2 id="deck-name" class="deck-title"></h2>
+        <p class="muted" id="deck-total"></p>
+        <div class="ring-row">
+          <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+            <circle cx="60" cy="60" r="52" class="ring-bg"/>
+            <circle cx="60" cy="60" r="52" class="ring-fg" id="ring-fg"/>
+            <text x="60" y="56" class="ring-num" id="ring-pct">0%</text>
+            <text x="60" y="76" class="ring-lbl" data-i18n="deck.learned">learned</text>
+          </svg>
+          <div class="counts">
+            <div class="count new"><span class="n" id="c-new">0</span><small data-i18n="count.new">New</small></div>
+            <div class="count learn"><span class="n" id="c-learn">0</span><small data-i18n="count.learn">Learning</small></div>
+            <div class="count due"><span class="n" id="c-due">0</span><small data-i18n="count.due">To review</small></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <div class="section-head"><h3><svg class="sh-ico"><use href="#i-check"/></svg><span data-i18n="deck.last7">Last 7 days</span></h3><span class="muted" id="hist-total"></span></div>
+        <div class="hist" id="hist"></div>
+      </div>
+
+      <button id="btn-study" class="btn primary big" data-i18n="btn.study">Study now</button>
+      <div class="row">
+        <button id="btn-custom" class="btn" data-i18n="btn.custom">Custom study</button>
+        <button id="btn-stats" class="btn" data-i18n="btn.stats">Statistics</button>
+      </div>
+      <div class="row">
+        <button id="btn-add-card" class="btn" data-i18n="btn.add_card">Add card</button>
+        <button id="btn-browse" class="btn" data-i18n="btn.browse">Browse cards</button>
+      </div>
+      <div class="row">
+        <button id="btn-deck-rename" class="btn" data-i18n="btn.rename_deck">Rename</button>
+        <button id="btn-deck-export" class="btn" data-i18n="btn.export_deck">Export .apkg</button>
+        <button id="btn-deck-delete" class="btn danger" data-i18n="btn.delete_deck">Delete deck</button>
+      </div>
+    </section>
+
+    <!-- Study -->
+    <section id="view-study" class="view hidden">
+      <div class="study-head">
+        <span class="pill new"><i></i><b id="s-new">0</b> <span data-i18n="study.new">new</span></span>
+        <span class="pill learn"><i></i><b id="s-learn">0</b> <span data-i18n="study.learn">learning</span></span>
+        <span class="pill due"><i></i><b id="s-due">0</b> <span data-i18n="study.due">review</span></span>
+        <span id="flag-dot" class="flagdot hidden"></span>
+      </div>
+      <div id="card-wrap" class="card-wrap">
+        <div id="card-host" class="card-host" tabindex="0" role="button" aria-label="Show answer"></div>
+        <div id="timer-bar" class="timer hidden"><i></i></div>
+        <div id="type-wrap" class="type-wrap hidden">
+          <input id="type-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-i18n-placeholder="study.type_here" placeholder="Type the answer…">
+          <button id="btn-type-check" class="btn primary" data-i18n="study.check">Check</button>
+        </div>
+        <div id="type-result" class="type-result hidden"></div>
+        <div class="card-hint" id="card-hint"></div>
+      </div>
+      <div class="study-controls">
+        <button id="btn-show" class="btn primary big"><span data-i18n="btn.show">Show answer</span> <kbd class="key inline">space</kbd></button>
+        <div id="grade" class="grade hidden">
+          <button data-grade="1" class="btn again"><kbd class="key">1</kbd><span data-i18n="grade.again">Again</span><small id="iv-1"></small></button>
+          <button data-grade="2" class="btn hard"><kbd class="key">2</kbd><span data-i18n="grade.hard">Hard</span><small id="iv-2"></small></button>
+          <button data-grade="3" class="btn good"><kbd class="key">3</kbd><span data-i18n="grade.good">Good</span><small id="iv-3"></small></button>
+          <button data-grade="4" class="btn easy"><kbd class="key">4</kbd><span data-i18n="grade.easy">Easy</span><small id="iv-4"></small></button>
+        </div>
+      </div>
+      <div id="study-done" class="done hidden">
+        <div class="done-art"><svg><use href="#i-check"/></svg></div>
+        <h2 data-i18n="done.title">Session complete</h2>
+        <p class="muted" id="study-done-msg"></p>
+        <div class="summary">
+          <div><strong id="sum-count">0</strong><span data-i18n="done.cards">cards</span></div>
+          <div><strong id="sum-acc">0%</strong><span data-i18n="done.correct">correct</span></div>
+          <div><strong id="sum-time">0m</strong><span data-i18n="done.time">time</span></div>
+        </div>
+        <button id="btn-done-back" class="btn primary big" data-i18n="btn.back_to_decks">Back to decks</button>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section id="view-settings" class="view hidden">
+      <div class="group">
+        <div class="group-title" data-i18n="set.limits">Daily limits</div>
+        <label class="field"><span data-i18n="set.new_per_day">New cards per day</span><input id="set-new-per-day" type="number" inputmode="numeric" min="0" max="9999"></label>
+        <label class="field"><span data-i18n="set.rev_per_day">Maximum reviews per day</span><input id="set-rev-per-day" type="number" inputmode="numeric" min="0" max="99999"></label>
+      </div>
+      <div class="group">
+        <div class="group-title" data-i18n="set.learning">Learning</div>
+        <label class="field"><span data-i18n="set.algorithm">Scheduling algorithm</span>
+          <select id="set-algo"><option value="fsrs">FSRS</option><option value="sm2">SM-2</option></select>
+        </label>
+        <label class="field" id="row-retention"><span data-i18n="set.retention">Desired retention (%)</span><input id="set-retention" type="number" inputmode="numeric" min="70" max="97"></label>
+        <label class="field"><span data-i18n="set.steps">Learning steps (minutes)</span><input id="set-steps" type="text" placeholder="1, 10"></label>
+        <p class="muted small" data-i18n="set.algo_hint"></p>
+      </div>
+      <div class="group">
+        <div class="group-title" data-i18n="set.study">Study</div>
+        <label class="field"><span data-i18n="set.type_answer">Type the answer</span><select id="set-type"><option value="0" data-i18n="set.off">Off</option><option value="1" data-i18n="set.on">On</option></select></label>
+        <label class="field"><span data-i18n="set.autoplay">Play audio automatically</span><select id="set-autoplay"><option value="1" data-i18n="set.on">On</option><option value="0" data-i18n="set.off">Off</option></select></label>
+        <label class="field"><span data-i18n="set.timelimit">Seconds per card (0 = no limit)</span><input id="set-timelimit" type="number" inputmode="numeric" min="0" max="600"></label>
+        <button id="btn-notetypes" class="btn row-btn" data-i18n="set.notetypes">Note types (card templates)…</button>
+      </div>
+      <div class="group">
+        <div class="group-title" data-i18n="set.appearance">Appearance</div>
+        <label class="field"><span data-i18n="set.theme">Theme</span>
+          <select id="set-theme"><option value="auto" data-i18n="set.theme_auto">System</option><option value="light" data-i18n="set.theme_light">Light</option><option value="dark" data-i18n="set.theme_dark">Dark</option></select>
+        </label>
+        <label class="field"><span data-i18n="set.language">Language</span>
+          <select id="set-lang"><option value="auto" data-i18n="set.lang_auto">Automatic</option><option value="en">English</option><option value="pl">Polski</option></select>
+        </label>
+      </div>
+      <button id="btn-settings-save" class="btn primary big" data-i18n="btn.save">Save</button>
+
+      <div class="group" id="sync-group">
+        <div class="group-title" data-i18n="sync.title">Sync between devices</div>
+        <p class="status err small hidden" id="sync-unavailable"></p>
+        <div id="sync-signed-out">
+          <p class="muted small" data-i18n="sync.intro"></p>
+          <div class="field col"><span data-i18n="sync.email">Your e-mail</span><input id="sync-email" type="email" autocomplete="email" placeholder="ala@example.com"></div>
+          <button id="btn-sync-link" class="btn row-btn" data-i18n="sync.send_link">Send me a sign-in link</button>
+          <button id="btn-sync-google" class="btn row-btn" data-i18n="sync.google">Sign in with Google</button>
+        </div>
+        <div id="sync-signed-in" class="hidden">
+          <p class="small" id="sync-who"></p>
+          <p class="muted small" id="sync-info"></p>
+          <button id="btn-sync-now" class="btn row-btn" data-i18n="sync.now">Sync now</button>
+          <button id="btn-sync-out" class="btn row-btn" data-i18n="sync.signout">Sign out</button>
+        </div>
+        <p class="status err small hidden" id="sync-error"></p>
+      </div>
+      <div class="group">
+        <div class="group-title" data-i18n="set.data">Data</div>
+        <button id="btn-export" class="btn row-btn" data-i18n="btn.backup">Back up everything (.zip)</button>
+        <button id="btn-restore" class="btn row-btn" data-i18n="btn.restore">Restore from backup…</button>
+        <button id="btn-persist" class="btn row-btn" data-i18n="btn.persist">Request persistent storage</button>
+        <p class="muted small" id="storage-info">…</p>
+      </div>
+      <div class="group">
+        <div class="group-title" data-i18n="app.help">Help</div>
+        <button id="btn-settings-help" class="btn row-btn" data-i18n="empty.help">How do I get a deck from Anki?</button>
+      </div>
+      <div class="group">
+        <div class="group-title" data-i18n="set.danger">Danger zone</div>
+        <button id="btn-wipe" class="btn row-btn danger" data-i18n="btn.wipe">Delete all data on this device</button>
+      </div>
+      <p class="muted small center" id="settings-footer"></p>
+    </section>
+
+    <!-- Card editor -->
+    <section id="view-editor" class="view hidden">
+      <div class="group">
+        <div class="group-title" data-i18n="ed.type">Card type</div>
+        <div class="seg" id="ed-type">
+          <button data-type="basic" class="on" data-i18n="ed.basic">Basic</button>
+          <button data-type="reversed" data-i18n="ed.reversed">Basic + reversed</button>
+          <button data-type="cloze" data-i18n="ed.cloze">Cloze</button>
+        </div>
+      </div>
+      <div class="group" id="ed-fields">
+        <div class="field col"><span id="ed-l1" data-i18n="ed.front">Front</span><div class="toolbar" data-for="ed-f1">
+            <button type="button" data-cmd="bold" title="Bold"><b>B</b></button>
+            <button type="button" data-cmd="italic" title="Italic"><i>I</i></button>
+            <button type="button" data-cmd="underline" title="Underline"><u>U</u></button>
+            <button type="button" data-cmd="superscript" title="Superscript">x<sup>2</sup></button>
+            <button type="button" data-cmd="subscript" title="Subscript">H<sub>2</sub></button>
+            <select data-font title="Font"><option value="">Aa</option><option value="Arial, sans-serif">Arial</option><option value="Georgia, serif">Serif</option><option value="Nunito, ui-rounded, sans-serif">Nunito</option><option value="ui-monospace, Menlo, monospace">Mono</option><option value="Comic Sans MS, cursive">Comic</option></select>
+            <select data-size title="Size"><option value="">T</option><option value="2">S</option><option value="3">M</option><option value="5">L</option><option value="6">XL</option></select>
+            <label class="colorbtn" title="Text colour">A<input type="color" data-color value="#2C3B4D"></label>
+            <label class="colorbtn hl" title="Highlight">▮<input type="color" data-hilite value="#FFE08A"></label>
+            <button type="button" data-cmd="insertUnorderedList" title="Bullets">•≡</button>
+            <button type="button" data-cmd="insertOrderedList" title="Numbered">1≡</button>
+            <button type="button" data-cmd="justifyLeft" title="Left">⇤</button>
+            <button type="button" data-cmd="justifyCenter" title="Centre">☰</button>
+            <button type="button" data-cmd="removeFormat" title="Clear formatting">⌫</button>
+            <button type="button" data-cloze title="Cloze" class="cloze-btn">[…]</button>
+          </div>
+          <div id="ed-f1" class="rte" contenteditable="true"></div>
+          <div class="thumbs" id="ed-img1"></div>
+          <div class="thumbs" id="ed-aud1"></div>
+          <div class="row imgrow">
+            <label class="btn small-btn"><svg class="ico"><use href="#i-image"/></svg> <span data-i18n="ed.add_image">Add photo</span><input type="file" accept="image/*" data-field="1" class="ed-img-input" hidden></label>
+            <button type="button" class="btn small-btn ed-rec" data-field="1"><svg class="ico"><use href="#i-mic"/></svg> <span data-i18n="ed.record">Record</span></button>
+            <label class="btn small-btn"><svg class="ico"><use href="#i-audio"/></svg> <span data-i18n="ed.add_audio">Audio file</span><input type="file" accept="audio/*" data-field="1" class="ed-aud-input" hidden></label>
+          </div>
+        </div>
+        <div class="field col"><span id="ed-l2" data-i18n="ed.back">Back</span><div class="toolbar" data-for="ed-f2">
+            <button type="button" data-cmd="bold" title="Bold"><b>B</b></button>
+            <button type="button" data-cmd="italic" title="Italic"><i>I</i></button>
+            <button type="button" data-cmd="underline" title="Underline"><u>U</u></button>
+            <button type="button" data-cmd="superscript" title="Superscript">x<sup>2</sup></button>
+            <button type="button" data-cmd="subscript" title="Subscript">H<sub>2</sub></button>
+            <select data-font title="Font"><option value="">Aa</option><option value="Arial, sans-serif">Arial</option><option value="Georgia, serif">Serif</option><option value="Nunito, ui-rounded, sans-serif">Nunito</option><option value="ui-monospace, Menlo, monospace">Mono</option><option value="Comic Sans MS, cursive">Comic</option></select>
+            <select data-size title="Size"><option value="">T</option><option value="2">S</option><option value="3">M</option><option value="5">L</option><option value="6">XL</option></select>
+            <label class="colorbtn" title="Text colour">A<input type="color" data-color value="#2C3B4D"></label>
+            <label class="colorbtn hl" title="Highlight">▮<input type="color" data-hilite value="#FFE08A"></label>
+            <button type="button" data-cmd="insertUnorderedList" title="Bullets">•≡</button>
+            <button type="button" data-cmd="insertOrderedList" title="Numbered">1≡</button>
+            <button type="button" data-cmd="justifyLeft" title="Left">⇤</button>
+            <button type="button" data-cmd="justifyCenter" title="Centre">☰</button>
+            <button type="button" data-cmd="removeFormat" title="Clear formatting">⌫</button>
+            <button type="button" data-cloze title="Cloze" class="cloze-btn">[…]</button>
+          </div>
+          <div id="ed-f2" class="rte" contenteditable="true"></div>
+          <div class="thumbs" id="ed-img2"></div>
+          <div class="thumbs" id="ed-aud2"></div>
+          <div class="row imgrow">
+            <label class="btn small-btn"><svg class="ico"><use href="#i-image"/></svg> <span data-i18n="ed.add_image">Add photo</span><input type="file" accept="image/*" data-field="2" class="ed-img-input" hidden></label>
+            <button type="button" class="btn small-btn ed-rec" data-field="2"><svg class="ico"><use href="#i-mic"/></svg> <span data-i18n="ed.record">Record</span></button>
+            <label class="btn small-btn"><svg class="ico"><use href="#i-audio"/></svg> <span data-i18n="ed.add_audio">Audio file</span><input type="file" accept="audio/*" data-field="2" class="ed-aud-input" hidden></label>
+          </div>
+        </div>
+        <p class="muted small" id="ed-hint"></p>
+        <label class="field col"><span data-i18n="ed.tags">Tags (optional)</span><input id="ed-tags" type="text" placeholder="chemistry, chapter1"></label>
+      </div>
+      <button id="btn-ed-save" class="btn primary big" data-i18n="ed.save">Save</button>
+      <button id="btn-ed-save-add" class="btn big" data-i18n="ed.save_add">Save and add another</button>
+      <button id="btn-ed-suspend" class="btn big hidden"></button>
+      <button id="btn-ed-delete" class="btn big danger hidden" data-i18n="ed.delete">Delete this card</button>
+    </section>
+
+    <!-- Card browser -->
+    <section id="view-browser" class="view hidden">
+      <input id="br-search" type="search" class="search" data-i18n-placeholder="br.search" placeholder="Search…">
+      <div class="chips" id="br-filter">
+        <button data-f="all" class="on" data-i18n="br.f_all">All</button>
+        <button data-f="new" data-i18n="st.new">new</button>
+        <button data-f="due" data-i18n="br.f_due">due</button>
+        <button data-f="flag" data-i18n="br.f_flag">flagged</button>
+        <button data-f="susp" data-i18n="br.f_susp">suspended</button>
+      </div>
+      <div class="panel">
+        <div class="section-head"><h2><svg class="sh-ico"><use href="#i-cards"/></svg><span id="br-count"></span></h2></div>
+        <div id="br-list" class="deck-list"></div>
+      </div>
+      <button id="btn-br-add" class="btn primary big"><svg class="ico"><use href="#i-plus"/></svg> <span data-i18n="btn.add_card">Add card</span></button>
+    </section>
+
+    <!-- Statistics -->
+    <section id="view-stats" class="view hidden">
+      <div class="card-panel">
+        <div class="section-head"><h3 data-i18n="stats.cards">Cards</h3><span class="muted" id="st-total"></span></div>
+        <div class="stack" id="st-states"></div>
+        <div class="legend" id="st-legend"></div>
+      </div>
+      <div class="summary">
+        <div><strong id="st-ret">–</strong><span data-i18n="stats.retention">retention (30 d)</span></div>
+        <div><strong id="st-reviews">0</strong><span data-i18n="stats.reviews30">reviews (30 d)</span></div>
+        <div><strong id="st-time">–</strong><span data-i18n="stats.avg_time">per card</span></div>
+      </div>
+      <div class="card-panel">
+        <div class="section-head"><h3 data-i18n="stats.history">Reviews, last 30 days</h3><span class="muted" id="st-hist-total"></span></div>
+        <div class="hist hist30" id="st-hist"></div>
+      </div>
+      <div class="card-panel">
+        <div class="section-head"><h3 data-i18n="stats.forecast">Due, next 30 days</h3><span class="muted" id="st-forecast-total"></span></div>
+        <div class="hist hist30" id="st-forecast"></div>
+      </div>
+      <div class="card-panel">
+        <div class="section-head"><h3 data-i18n="stats.hardest">Hardest cards</h3></div>
+        <div id="st-hard" class="deck-list"></div>
+      </div>
+    </section>
+
+    <!-- Note types -->
+    <section id="view-notetypes" class="view hidden">
+      <div class="panel"><div id="nt-list" class="deck-list"></div></div>
+      <p class="muted small" data-i18n="nt.hint"></p>
+    </section>
+    <section id="view-template" class="view hidden">
+      <div class="group">
+        <label class="field"><span data-i18n="nt.template">Template</span><select id="tp-select"></select></label>
+        <div class="field col"><span data-i18n="nt.front">Front (question) HTML</span><textarea id="tp-qfmt" rows="4" spellcheck="false"></textarea></div>
+        <div class="field col"><span data-i18n="nt.back">Back (answer) HTML</span><textarea id="tp-afmt" rows="4" spellcheck="false"></textarea></div>
+        <div class="field col"><span data-i18n="nt.css">Styling (CSS)</span><textarea id="tp-css" rows="6" spellcheck="false"></textarea></div>
+        <p class="muted small" id="tp-fields"></p>
+      </div>
+      <button id="btn-tp-save" class="btn primary big" data-i18n="btn.save">Save</button>
+    </section>
+
+    <!-- Help -->
+    <section id="view-help" class="view hidden">
+      <article id="help-body" class="help"></article>
+    </section>
+  </main>
+
+  <!-- More menu (deck list) -->
+  <div id="sheet" class="sheet hidden" role="dialog">
+    <div class="sheet-backdrop" id="sheet-backdrop"></div>
+    <div class="sheet-body">
+      <div class="sheet-grip"></div>
+      <button id="sheet-backup" class="btn row-btn" data-i18n="btn.backup">Back up everything (.zip)</button>
+      <button id="sheet-restore" class="btn row-btn" data-i18n="btn.restore">Restore from backup…</button>
+      <button id="sheet-cancel" class="btn row-btn" data-i18n="btn.cancel">Cancel</button>
+    </div>
+  </div>
+
+  <div id="sheet-study" class="sheet hidden" role="dialog">
+    <div class="sheet-backdrop"></div>
+    <div class="sheet-body">
+      <div class="sheet-grip"></div>
+      <button id="ss-flag" class="btn row-btn"><svg class="ico"><use href="#i-flag"/></svg> <span data-i18n="study.flag">Flag</span></button>
+      <button id="ss-suspend" class="btn row-btn"><span data-i18n="study.suspend">Suspend card</span></button>
+      <button id="ss-bury" class="btn row-btn"><span data-i18n="study.bury">Bury until tomorrow</span></button>
+      <button id="ss-cancel" class="btn row-btn" data-i18n="btn.cancel">Cancel</button>
+    </div>
+  </div>
+  <div id="sheet-custom" class="sheet hidden" role="dialog">
+    <div class="sheet-backdrop"></div>
+    <div class="sheet-body">
+      <div class="sheet-grip"></div>
+      <div class="group-title" data-i18n="cs.title">Custom study</div>
+      <label class="field"><span data-i18n="cs.tag">Only cards with tag</span><select id="cs-tag"><option value="">—</option></select></label>
+      <label class="field"><span data-i18n="cs.flag">Only flagged cards</span><input id="cs-flag" type="checkbox"></label>
+      <label class="field"><span data-i18n="cs.hard">Only hard cards (2+ lapses)</span><input id="cs-hard" type="checkbox"></label>
+      <label class="field"><span data-i18n="cs.ahead">Review ahead (days)</span><input id="cs-ahead" type="number" inputmode="numeric" min="0" max="365" value="0"></label>
+      <label class="field"><span data-i18n="cs.new">Extra new cards</span><input id="cs-new" type="number" inputmode="numeric" min="0" max="999" value="0"></label>
+      <label class="field"><span data-i18n="cs.nolimit">Ignore daily limits</span><input id="cs-nolimit" type="checkbox"></label>
+      <div class="row" style="padding:8px"><button id="cs-cancel" class="btn" data-i18n="btn.cancel">Cancel</button><button id="cs-start" class="btn primary" data-i18n="cs.start">Start</button></div>
+    </div>
+  </div>
+  <div id="drop-overlay" class="drop-overlay hidden"><div data-i18n="drop.hint">Drop the .apkg file to import</div></div>
+  <div id="toast" class="toast hidden" role="status"></div>
+
+  <script src="vendor/jszip.min.js"></script>
+  <script src="vendor/firebase-app-compat.js"></script>
+  <script src="vendor/firebase-auth-compat.js"></script>
+  <script src="vendor/firebase-firestore-compat.js"></script>
+  <script src="vendor/sql-wasm.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
